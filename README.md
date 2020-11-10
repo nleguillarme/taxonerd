@@ -1,21 +1,15 @@
-# DeTaxer
+# TaxoNERD
 
-A deep neural model for taxonomic entity recognition
+Taxonomic Named Entity Recognition using Deep Models
 
 
 # Installation
 
-If you don't use `pipsi`, you're missing out.
-Here are [installation instructions](https://github.com/mitsuhiko/pipsi#readme).
-
-Simply run:
-
-    $ pipsi install .
+    $ pip install .
 
 
 # Usage
 
 To use it:
 
-    $ detaxer --help
-
+    $ taxonerd --help
