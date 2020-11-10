@@ -8,14 +8,12 @@ import sys
 from scispacy.abbreviation import AbbreviationDetector
 
 
-class DeTaxer:
+class TaxoNERD:
     def __init__(self, model="en_ner_ecology_md", with_abbrev=False, with_gpu=False):
         warnings.simplefilter("ignore")
         if with_gpu:
             print("Use GPU")
             spacy.prefer_gpu()
-        # if model_path:
-        #     self.nlp = spacy.load(model_path)
         print("Load model {}".format(model))
         self.nlp = spacy.load(model)
 
@@ -52,7 +50,7 @@ class DeTaxer:
             ]
         if self.with_abbrev:
             entities += (
-                self.get_abbreviated_tax_entity(entities, doc._.abbreviations)
+                self.get_abbreviated_tax_entity(text, entities, doc._.abbreviations)
                 if len(doc._.abbreviations) > 0
                 else []
             )
@@ -61,31 +59,16 @@ class DeTaxer:
         df = df.rename("T{}".format)
         return df
 
-    def get_abbreviated_tax_entity(self, entities, abbreviations):
+    def get_abbreviated_tax_entity(self, text, entities, abbreviations):
         ents = [ent["text"] for ent in entities]
         abbreviations = [
             {
                 "offsets": "LIVB {} {}".format(abrv.start_char, abrv.end_char),
-                "text": abrv._.long_form,
+                "text": text[abrv.start_char : abrv.end_char]
+                + ";"
+                + abrv._.long_form.text,
             }
             for abrv in abbreviations
             if abrv._.long_form.text in ents
         ]
         return abbreviations
-
-    # def reconstruct_entities(self, tokens):
-    #     start = None
-    #     for i in range(len(tokens)):
-    #         if tokens[i].ent_type_ == "B-LIVB":
-    #             start = tokens[i].idx
-    #             end = tokens[i].idx + len(tokens[i])
-    #             for j in range(i + 1, len(tokens)):
-    #                 if tokens[j].ent_type_ == "I-LIVB":
-    #                     end = tokens[j].idx + len(tokens[j])
-    #                 else:
-    #                     yield start, end
-    #                     i = j
-    #                     start = None
-    #                     break
-    #     if start:
-    #         yield start, end
