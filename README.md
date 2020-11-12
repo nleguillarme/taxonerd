@@ -1,14 +1,24 @@
 # TaxoNERD
 
-Taxonomic Named Entity Recognition using Deep Models
+Looking for taxon mentions in text? Ask TaxoNERD
 
+* [Features](#features)
+* [Installation](#installation)
+* [Usage](#usage)
 
-# Installation
+## Features
+
+* Based on the en_ner_bionlp13cg_md model from [sciSpacy](https://allenai.github.io/scispacy/), fine-tuned on ecological and biomedical datasets
+* Find scientific names, common names and user-defined abbreviations
+* Lightning-fast on CPU, can use GPU to speed-up the recognition process
+* Available as a command-line tool and a python library
+
+## Installation
 
     $ pip install .
 
 
-# Usage
+## Usage
 
 To use it:
 
