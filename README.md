@@ -8,7 +8,7 @@ Looking for taxon mentions in text? Ask TaxoNERD
 
 ## Features
 
-* Based on the en_ner_bionlp13cg_md model from [scispaCy](https://allenai.github.io/scispacy/), fine-tuned on ecological and biomedical datasets
+* Based on the en_core_sci_md model from [scispaCy](https://allenai.github.io/scispacy/), fine-tuned on ecological and biomedical datasets
 * Find scientific names, common names and user-defined abbreviations
 * Lightning-fast on CPU, can use GPU to speed-up the recognition process
 * Available as a command-line tool and a python library
