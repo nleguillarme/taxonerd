@@ -9,13 +9,19 @@ from scispacy.abbreviation import AbbreviationDetector
 
 
 class TaxoNERD:
-    def __init__(self, model="en_ner_ecology_md", with_abbrev=False, with_gpu=False):
+    def __init__(
+        self, model="en_ner_eco_md", with_abbrev=False, with_gpu=False, logger=None
+    ):
+        self.logger = logger
         warnings.simplefilter("ignore")
         if with_gpu:
-            print("Use GPU")
+            self.logger.info("Use GPU")
             spacy.prefer_gpu()
-        print("Load model {}".format(model))
+        self.logger.info("Load model {}".format(model))
         self.nlp = spacy.load(model)
+        self.logger.info(
+            "Loaded model {}-{}".format(self.nlp.meta["name"], self.nlp.meta["version"])
+        )
 
         self.with_abbrev = with_abbrev
         if self.with_abbrev:
@@ -46,8 +52,14 @@ class TaxoNERD:
                     "text": text[ent.start_char : ent.end_char].replace("\n", " "),
                 }
                 for ent in doc.ents
-                if "\n" not in text[ent.start_char : ent.end_char].strip("\n")
+                if (
+                    "\n" not in text[ent.start_char : ent.end_char].strip("\n")
+                    and ent.label_ == "LIVB"
+                )
             ]
+            for ent in doc.ents:
+                if ent.label_ != "LIVB":
+                    raise ValueError(ent.label_)
         if self.with_abbrev:
             entities += (
                 self.get_abbreviated_tax_entity(text, entities, doc._.abbreviations)

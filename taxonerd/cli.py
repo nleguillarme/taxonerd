@@ -1,6 +1,8 @@
 import click
 from .taxonerd import TaxoNERD
 import sys
+import logging
+import logging.config
 
 
 @click.group()
@@ -14,7 +16,7 @@ def cli():
     "-m",
     type=str,
     help="A spaCy taxonomic NER model",
-    default="en_ner_ecology_md",
+    default="en_ner_eco_md",
 )
 @click.option("--input-dir", "-i", type=str, help="Input directory")
 @click.option("--output-dir", "-o", type=str, help="Output directory")
@@ -27,12 +29,18 @@ def cli():
     is_flag=True,
 )
 @click.option("--gpu", type=bool, help="Use GPU if possible", is_flag=True)
+@click.option("-v", type=bool, help="Verbose mode", is_flag=True)
 @click.argument("text", required=False)
-def ask(model, input_dir, output_dir, filename, with_abbrev, gpu, text):
-    ner = TaxoNERD(model=model, with_abbrev=with_abbrev, with_gpu=gpu)
+def ask(model, input_dir, output_dir, filename, with_abbrev, gpu, v, text):
+
+    logger = logging.getLogger(__name__)
+    if v:
+        logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
+
+    ner = TaxoNERD(model=model, with_abbrev=with_abbrev, with_gpu=gpu, logger=logger)
 
     if text:
-        df = ner.find_entities(text, output_dir)
+        df = ner.find_entities(text)
         df.to_csv(sys.stdout, sep="\t", header=False)
     elif input_dir:
         ner.find_all_files(input_dir, output_dir)
