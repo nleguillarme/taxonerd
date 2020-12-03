@@ -16,6 +16,7 @@ Looking for taxon mentions in text? Ask TaxoNERD
 ## Installation
 
     $ pip install .
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v0.1.1/en_ner_eco_md-0.1.1.tar.gz
 
 
 ## Usage
