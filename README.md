@@ -119,10 +119,10 @@ T5	LIVB 424 428	BXF1
 >>> ner.find_all_files("./test_txt", "./test_ann")
 ```
 
-## License
+## License
 
 License: MIT
 
-## Authors
+## Authors
 
 `TaxoNERD` was written by `nleguillarme <nicolas.leguillarme@univ-grenoble-alpes.fr>`_.
