@@ -8,6 +8,8 @@ Looking for taxon mentions in text? Ask TaxoNERD
 
 ## Features
 
+TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodiversity literature.
+
 * Based on the en_core_sci_md model from [scispaCy](https://allenai.github.io/scispacy/), fine-tuned on an ecological corpus
 * Find scientific names, common names and user-defined abbreviations
 * Lightning-fast on CPU (once the model is loaded), can use GPU to speed-up the recognition process
