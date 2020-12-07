@@ -18,29 +18,29 @@ def cli():
     help="A spaCy taxonomic NER model",
     default="en_ner_eco_md",
 )
-@click.option("--input-dir", "-i", type=str, help="Input directory")
-@click.option("--output-dir", "-o", type=str, help="Output directory")
-@click.option("--filename", "-f", type=str, help="Name of a text file")
+@click.option("--input-dir", "-i", help="Input directory")
+@click.option("--output-dir", "-o", help="Output directory")
+@click.option("--filename", "-f", help="Input text file")
 @click.option(
     "--with-abbrev",
     "-a",
     type=bool,
-    help="Add abbreviation detection to the pipeline",
+    help="Add abbreviation detector to the pipeline",
     is_flag=True,
 )
-@click.option("--gpu", type=bool, help="Use GPU if possible", is_flag=True)
-@click.option("-v", type=bool, help="Verbose mode", is_flag=True)
-@click.argument("text", required=False)
-def ask(model, input_dir, output_dir, filename, with_abbrev, gpu, v, text):
+@click.option("--gpu", type=bool, help="Use GPU if available", is_flag=True)
+@click.option("--verbose", "-v", type=bool, help="Verbose mode", is_flag=True)
+@click.argument("input_text", required=False)
+def ask(model, input_dir, output_dir, filename, with_abbrev, gpu, verbose, input_text):
 
     logger = logging.getLogger(__name__)
-    if v:
+    if verbose:
         logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
     ner = TaxoNERD(model=model, with_abbrev=with_abbrev, with_gpu=gpu, logger=logger)
 
-    if text:
-        df = ner.find_entities(text)
+    if input_text:
+        df = ner.find_entities(input_text)
         df.to_csv(sys.stdout, sep="\t", header=False)
     elif input_dir:
         ner.find_all_files(input_dir, output_dir)
