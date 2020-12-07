@@ -125,4 +125,4 @@ License: MIT
 
 ## Authors
 
-`TaxoNERD` was written by `nleguillarme <nicolas.leguillarme@univ-grenoble-alpes.fr>`_.
+TaxoNERD was written by [nleguillarme](nicolas.leguillarme@univ-grenoble-alpes.fr).
