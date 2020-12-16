@@ -1,5 +1,3 @@
-<img src="https://github.com/nleguillarme/taxonerd/blob/main/taxonerd_logo.png" width="40%">
-
 Looking for taxon mentions in text? Ask TaxoNERD
 
 * [Features](#features)
@@ -37,9 +35,9 @@ Options:
   -v, --verbose          Verbose mode
   --help                 Show this message and exit.
   ```
-  
+
   #### Examples
-  
+
   ##### Taxonomic NER from the terminal
 
 ``` console
@@ -51,7 +49,7 @@ T1	LIVB 13 25	Ursus arctos
   ##### Taxonomic NER from a text file (with abbreviation detection)
 
 ``` console
-$ taxonerd ask --with-abbrev -f test_txt/sample_text1.txt 
+$ taxonerd ask --with-abbrev -f test_txt/sample_text1.txt
 T0	LIVB 4 21	pinewood nematode
 T1	LIVB 23 26	PWN
 T2	LIVB 29 55	Bursaphelenchus xylophilus
@@ -69,7 +67,7 @@ T8	LIVB 23 26	PWN;pinewood nematode
 $ taxonerd ask -i test_txt -o test_ann
 $ ls test_ann/
 sample_text1.ann  sample_text2.ann
-$ cat test_ann/sample_text2.ann 
+$ cat test_ann/sample_text2.ann
 T0	LIVB 700 711	Brown bears
 T1	LIVB 713 725	Ursus arctos
 T2	LIVB 1906 1912	salmon
@@ -93,8 +91,8 @@ T13	LIVB 3381 3392	chum salmon
 >>> ner = TaxoNERD(model="en_ner_eco_md", with_gpu=False, with_abbrev=False)
 ```
 #### Examples
-  
-  ##### Find taxonomic entities in an input string 
+
+  ##### Find taxonomic entities in an input string
 
 ``` python
 >>> ner.find_entities("Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivore")

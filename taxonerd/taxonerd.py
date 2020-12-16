@@ -11,7 +11,12 @@ from scispacy.abbreviation import AbbreviationDetector
 
 class TaxoNERD:
     def __init__(
-        self, model="en_ner_eco_md", with_abbrev=False, with_gpu=False, logger=None
+        self,
+        model="en_ner_eco_md",
+        with_abbrev=False,
+        with_linking=None,
+        with_gpu=False,
+        logger=None,
     ):
         self.logger = logger if logger else logging.getLogger(__name__)
         warnings.simplefilter("ignore")
@@ -29,11 +34,34 @@ class TaxoNERD:
             abbreviation_pipe = AbbreviationDetector(self.nlp)
             self.nlp.add_pipe(abbreviation_pipe)
 
+        self.with_linking = with_linking != None
+        if self.with_linking:
+            kb_name = with_linking if with_linking != "" else "gbif"
+            linker = self.create_linker(kb_name)
+            self.nlp.add_pipe(linker)
+
+    def create_linker(self, kb_name):
+        from taxonerd.linking.linking_utils import Gbif
+        from taxonerd.linking.candidate_generation import CandidateGenerator
+        from taxonerd.linking.linking import EntityLinker
+
+        return EntityLinker(
+            candidate_generator=CandidateGenerator(name="gbif", kb=Gbif()),
+            resolve_abbreviations=self.with_abbrev,
+            name=kb_name,
+            filter_for_definitions=False,
+            k=1,
+            threshold=0.7,
+        )
+
     def find_all_files(self, input_dir, output_dir=None):
         for filename in glob(os.path.join(input_dir, "*.txt")):
             self.find_in_file(filename, output_dir)
 
     def find_in_file(self, filename, output_dir=None):
+        if not os.path.exists(filename):
+            raise FileNotFoundError("file {} not found".format(path))
+        self.logger.info("Extract taxa from file {}".format(filename))
         with open(filename, "r") as f:
             text = f.read()
         ann_filename = ".".join(os.path.basename(filename).split(".")[:-1]) + ".ann"
@@ -45,15 +73,21 @@ class TaxoNERD:
         else:
             df.to_csv(sys.stdout, sep="\t", header=False)
 
+    def get_entity_dict(self, ent, text):
+        ent_dict = {
+            "offsets": "LIVB {} {}".format(ent.start_char, ent.end_char),
+            "text": text[ent.start_char : ent.end_char].replace("\n", " "),
+        }
+        if self.with_linking:
+            ent_dict["entity"] = ent._.kb_ents
+        return ent_dict
+
     def find_entities(self, text):
         doc = self.nlp(text)
         entities = []
         if len(doc.ents) > 0:
             entities = [
-                {
-                    "offsets": "LIVB {} {}".format(ent.start_char, ent.end_char),
-                    "text": text[ent.start_char : ent.end_char].replace("\n", " "),
-                }
+                self.get_entity_dict(ent, text)
                 for ent in doc.ents
                 if (
                     "\n" not in text[ent.start_char : ent.end_char].strip("\n")
@@ -72,7 +106,7 @@ class TaxoNERD:
 
         df = pd.DataFrame(entities)
         df = df.rename("T{}".format)
-        return df
+        return df.dropna()
 
     def get_abbreviated_tax_entity(self, text, entities, abbreviations):
         ents = [ent["text"] for ent in entities]
@@ -82,6 +116,7 @@ class TaxoNERD:
                 "text": text[abrv.start_char : abrv.end_char]
                 + ";"
                 + abrv._.long_form.text,
+                "entity": abrv._.kb_ents,
             }
             for abrv in abbreviations
             if abrv._.long_form.text in ents
