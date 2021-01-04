@@ -13,7 +13,7 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 * Based on the en_core_sci_md model from [scispaCy](https://allenai.github.io/scispacy/), fine-tuned on an ecological corpus
 * Find scientific names, common names and user-defined abbreviations
 * Can link taxon mentions to entities in a reference taxonomy (GBIF Backbone and TAXREF at the moment, more to come)
-* Taxonomic NER is lightning-fast on CPU (once the model is loaded), can use GPU to speed-up the recognition process
+* TaxoNERD is fast (once the model is loaded), and can run on CPU or GPU
 * Entity linking does not need an internet connection, but may require a lot of RAM depending on the size of the taxonomy (e.g. GBIF Backbone -> 15Gb)
 * Thanks to [textract](https://textract.readthedocs.io/en/stable/), TaxoNERD can extract taxon mentions from (almost) any document (including txt, pdf, csv, xls, jpg, png, and many other formats)
 * Available as a command-line tool and a python module
