@@ -15,6 +15,7 @@ class TaxoNERD:
         model="en_ner_eco_md",
         with_abbrev=False,
         with_linking=None,
+        threshold=0.7,
         with_gpu=False,
         logger=None,
     ):
@@ -36,22 +37,23 @@ class TaxoNERD:
 
         self.with_linking = with_linking != None
         if self.with_linking:
-            kb_name = with_linking if with_linking != "" else "gbif"
-            linker = self.create_linker(kb_name)
+            kb_name = with_linking if with_linking != "" else "gbif_backbone"
+            linker = self.create_linker(kb_name, threshold)
             self.nlp.add_pipe(linker)
 
-    def create_linker(self, kb_name):
-        from taxonerd.linking.linking_utils import Gbif
+    def create_linker(self, kb_name, threshold):
+        from taxonerd.linking.linking_utils import KnowledgeBaseFactory
         from taxonerd.linking.candidate_generation import CandidateGenerator
         from taxonerd.linking.linking import EntityLinker
 
+        kb = KnowledgeBaseFactory().get_kb(kb_name)
+
         return EntityLinker(
-            candidate_generator=CandidateGenerator(name="gbif", kb=Gbif()),
+            candidate_generator=CandidateGenerator(name=kb_name, kb=kb),
             resolve_abbreviations=self.with_abbrev,
-            name=kb_name,
             filter_for_definitions=False,
             k=1,
-            threshold=0.7,
+            threshold=threshold,
         )
 
     def find_all_files(self, input_dir, output_dir=None):

@@ -115,8 +115,8 @@ class EntityLinker:
                 ):
                     continue
                 if score > self.threshold:
-                    predicted.append((cand.concept_id, score))
-            sorted_predicted = sorted(predicted, reverse=True, key=lambda x: x[1])
+                    predicted.append((cand.concept_id, cand.aliases[0], score))
+            sorted_predicted = sorted(predicted, reverse=True, key=lambda x: x[2])
             # mention._.umls_ents = sorted_predicted[: self.max_entities_per_mention]
             kb_ents = sorted_predicted[: self.max_entities_per_mention]
             mention._.kb_ents = kb_ents if kb_ents != [] else None

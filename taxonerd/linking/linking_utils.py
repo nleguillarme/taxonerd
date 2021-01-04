@@ -152,8 +152,25 @@ class KnowledgeBase:
 #         )
 
 
+class KnowledgeBaseFactory:
+    def get_kb(self, name=None):
+        if name == "gbif_backbone":
+            return Gbif()
+        elif name == "taxref":
+            return TaxRef()
+        else:
+            raise ValueError(name)
+
+
 class Gbif(KnowledgeBase):
-    def __init__(self, file_path: str = "./gbif/gbif_backbone.jsonl", prefix="GBIF:"):
+    def __init__(
+        self, file_path: str = "./gbif_backbone/gbif_backbone.jsonl", prefix="GBIF:"
+    ):
+        super().__init__(file_path, prefix)
+
+
+class TaxRef(KnowledgeBase):
+    def __init__(self, file_path: str = "./taxref/taxref.jsonl", prefix="TAXREF:"):
         super().__init__(file_path, prefix)
 
 

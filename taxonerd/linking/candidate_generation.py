@@ -11,7 +11,7 @@ import nmslib
 from nmslib.dist import FloatIndex
 
 from scispacy.file_cache import cached_path
-from .linking_utils import KnowledgeBase, Gbif
+from .linking_utils import KnowledgeBase, KnowledgeBaseFactory
 
 # UmlsKnowledgeBase,
 # Mesh,
@@ -41,10 +41,17 @@ class LinkerPaths(NamedTuple):
 
 
 GbifLinkerPaths = LinkerPaths(
-    ann_index="./gbif/nmslib_index.bin",  # noqa
-    tfidf_vectorizer="./gbif/tfidf_vectorizer.joblib",  # noqa
-    tfidf_vectors="./gbif/tfidf_vectors_sparse.npz",  # noqa
-    concept_aliases_list="./gbif/concept_aliases.json",  # noqa
+    ann_index="./gbif_backbone/nmslib_index.bin",  # noqa
+    tfidf_vectorizer="./gbif_backbone/tfidf_vectorizer.joblib",  # noqa
+    tfidf_vectors="./gbif_backbone/tfidf_vectors_sparse.npz",  # noqa
+    concept_aliases_list="./gbif_backbone/concept_aliases.json",  # noqa
+)
+
+TaxRefLinkerPaths = LinkerPaths(
+    ann_index="./taxref/nmslib_index.bin",  # noqa
+    tfidf_vectorizer="./taxref/tfidf_vectorizer.joblib",  # noqa
+    tfidf_vectors="./taxref/tfidf_vectors_sparse.npz",  # noqa
+    concept_aliases_list="./taxref/concept_aliases.json",  # noqa
 )
 
 # UmlsLinkerPaths = LinkerPaths(
@@ -84,7 +91,8 @@ GbifLinkerPaths = LinkerPaths(
 
 
 DEFAULT_PATHS: Dict[str, LinkerPaths] = {
-    "gbif": GbifLinkerPaths,
+    "gbif_backbone": GbifLinkerPaths,
+    "taxref": TaxRefLinkerPaths,
     # "umls": UmlsLinkerPaths,
     # "mesh": MeshLinkerPaths,
     # "go": GeneOntologyLinkerPaths,
@@ -92,14 +100,15 @@ DEFAULT_PATHS: Dict[str, LinkerPaths] = {
     # "rxnorm": RxNormLinkerPaths,
 }
 
-DEFAULT_KNOWLEDGE_BASES: Dict[str, Type[KnowledgeBase]] = {
-    "gbif": Gbif,
-    # "umls": UmlsKnowledgeBase,
-    # "mesh": Mesh,
-    # "go": GeneOntology,
-    # "hpo": HumanPhenotypeOntology,
-    # "rxnorm": RxNorm,
-}
+# DEFAULT_KNOWLEDGE_BASES: Dict[str, Type[KnowledgeBase]] = {
+#     "gbif": Gbif,
+#     "taxref": TaxRef,
+#     # "umls": UmlsKnowledgeBase,
+#     # "mesh": Mesh,
+#     # "go": GeneOntology,
+#     # "hpo": HumanPhenotypeOntology,
+#     # "rxnorm": RxNorm,
+# }
 
 
 class MentionCandidate(NamedTuple):
@@ -223,7 +232,7 @@ class CandidateGenerator:
         # Set the name to the default, after we have checked
         # the compatability with the args above.
         if name is None:
-            name = "gbif"
+            name = "gbif_backbone"
 
         linker_paths = DEFAULT_PATHS.get(name, GbifLinkerPaths)
 
@@ -237,7 +246,7 @@ class CandidateGenerator:
             open(cached_path(linker_paths.concept_aliases_list))
         )
 
-        self.kb = kb or DEFAULT_KNOWLEDGE_BASES[name]()
+        self.kb = kb or KnowledgeBaseFactory().get_kb(name)
         self.verbose = verbose
 
         # TODO(Mark): Remove in scispacy v1.0.

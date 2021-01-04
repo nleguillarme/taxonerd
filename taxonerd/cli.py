@@ -29,8 +29,12 @@ def cli():
     help="Add abbreviation detector to the pipeline",
     is_flag=True,
 )
+@click.option("--link-to", "-l", type=str, help="Add entity linker to the pipeline")
 @click.option(
-    "--link-to", "-l", type=str, help="Add entity linker to the pipeline", is_flag=True
+    "--thresh",
+    "-t",
+    help="Similarity threshold for an entity candidate to be added to the mentions",
+    default=0.7,
 )
 @click.option("--gpu", type=bool, help="Use GPU if available", is_flag=True)
 @click.option("--verbose", "-v", type=bool, help="Verbose mode", is_flag=True)
@@ -42,6 +46,7 @@ def ask(
     filename,
     with_abbrev,
     link_to,
+    thresh,
     gpu,
     verbose,
     input_text,
@@ -56,6 +61,7 @@ def ask(
         model=model,
         with_abbrev=with_abbrev,
         with_linking=link_to,
+        threshold=thresh,
         with_gpu=gpu,
         logger=logger,
     )
