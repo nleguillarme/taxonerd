@@ -1,3 +1,5 @@
+<img src="https://github.com/nleguillarme/taxonerd/blob/main/taxonerd_logo.png" width="40%">
+
 Looking for taxon mentions in text? Ask TaxoNERD
 
 * [Features](#features)
