@@ -11,7 +11,7 @@ Looking for taxon mentions in text? Ask TaxoNERD
 TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodiversity literature.
 
 * Based on the en_core_sci_md model from [scispaCy](https://allenai.github.io/scispacy/), fine-tuned on an ecological corpus
-* Find scientific names, common names and user-defined abbreviations
+* Find scientific names, english common names and user-defined abbreviations
 * Can link taxon mentions to entities in a reference taxonomy (GBIF Backbone and TAXREF at the moment, more to come)
 * TaxoNERD is fast (once the model is loaded), and can run on CPU or GPU
 * Entity linking does not need an internet connection, but may require a lot of RAM depending on the size of the taxonomy (e.g. GBIF Backbone -> 15Gb)
@@ -22,6 +22,12 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 
     $ pip install taxonerd
     $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v0.1.1/en_ner_eco_md-0.1.1.tar.gz
+
+Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once.
+Currently (v1.0.0), there are 2 supported linkers:
+
+* gbif_backbone: Links to [GBIF Backbone Taxonomy (2019-09-06)](https://www.gbif.org/fr/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) (~9.5M names for ~3.5M taxa).
+* taxref: Links to [TAXREF (v13)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/13.0/menu) (~1.2M names for ~267k taxa).
 
 ## Usage
 
