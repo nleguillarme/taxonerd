@@ -13,13 +13,6 @@ from nmslib.dist import FloatIndex
 from scispacy.file_cache import cached_path
 from .linking_utils import KnowledgeBase, KnowledgeBaseFactory
 
-# UmlsKnowledgeBase,
-# Mesh,
-# GeneOntology,
-# RxNorm,
-# HumanPhenotypeOntology,
-# )
-
 
 class LinkerPaths(NamedTuple):
     """
@@ -41,74 +34,23 @@ class LinkerPaths(NamedTuple):
 
 
 GbifLinkerPaths = LinkerPaths(
-    ann_index="./gbif_backbone/nmslib_index.bin",  # noqa
-    tfidf_vectorizer="./gbif_backbone/tfidf_vectorizer.joblib",  # noqa
-    tfidf_vectors="./gbif_backbone/tfidf_vectors_sparse.npz",  # noqa
-    concept_aliases_list="./gbif_backbone/concept_aliases.json",  # noqa
+    ann_index="https://cloud.univ-grenoble-alpes.fr/index.php/s/TrgYQDqPsasW6o9/download",  # nmslib_index.bin
+    tfidf_vectorizer="https://cloud.univ-grenoble-alpes.fr/index.php/s/2gi6knSb3NxkP3x/download",  # tfidf_vectorizer.joblib
+    tfidf_vectors="https://cloud.univ-grenoble-alpes.fr/index.php/s/rNbdMwCpZGTfMJN/download",  # tfidf_vectors_sparse.npz
+    concept_aliases_list="https://cloud.univ-grenoble-alpes.fr/index.php/s/P2bnEdPk8HJMjkE/download",  # concept_aliases.json
 )
 
 TaxRefLinkerPaths = LinkerPaths(
-    ann_index="./taxref/nmslib_index.bin",  # noqa
-    tfidf_vectorizer="./taxref/tfidf_vectorizer.joblib",  # noqa
-    tfidf_vectors="./taxref/tfidf_vectors_sparse.npz",  # noqa
-    concept_aliases_list="./taxref/concept_aliases.json",  # noqa
+    ann_index="https://cloud.univ-grenoble-alpes.fr/index.php/s/CxwtGT4qNNNCcPc/download",  # nmslib_index.bin
+    tfidf_vectorizer="https://cloud.univ-grenoble-alpes.fr/index.php/s/8z2iYsNYYw58Q2i/download",  # tfidf_vectorizer.joblib
+    tfidf_vectors="https://cloud.univ-grenoble-alpes.fr/index.php/s/ekKWnQoTbKQYxQx/download",  # tfidf_vectors_sparse.npz
+    concept_aliases_list="https://cloud.univ-grenoble-alpes.fr/index.php/s/LzcdQF4Zs8xqyZ8/download",  # concept_aliases.json
 )
-
-# UmlsLinkerPaths = LinkerPaths(
-#     ann_index="https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/data/linkers/2020-10-09/umls/nmslib_index.bin",  # noqa
-#     tfidf_vectorizer="https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/data/linkers/2020-10-09/umls/tfidf_vectorizer.joblib",  # noqa
-#     tfidf_vectors="https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/data/linkers/2020-10-09/umls/tfidf_vectors_sparse.npz",  # noqa
-#     concept_aliases_list="https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/data/linkers/2020-10-09/umls/concept_aliases.json",  # noqa
-# )
-#
-# MeshLinkerPaths = LinkerPaths(
-#     ann_index="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/mesh/nmslib_index.bin",  # noqa
-#     tfidf_vectorizer="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/mesh/tfidf_vectorizer.joblib",  # noqa
-#     tfidf_vectors="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/mesh/tfidf_vectors_sparse.npz",  # noqa
-#     concept_aliases_list="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/mesh/concept_aliases.json",  # noqa
-# )
-#
-# GeneOntologyLinkerPaths = LinkerPaths(
-#     ann_index="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/go/nmslib_index.bin",  # noqa
-#     tfidf_vectorizer="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/go/tfidf_vectorizer.joblib",  # noqa
-#     tfidf_vectors="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/go/tfidf_vectors_sparse.npz",  # noqa
-#     concept_aliases_list="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/go/concept_aliases.json",  # noqa
-# )
-#
-# HumanPhenotypeOntologyLinkerPaths = LinkerPaths(
-#     ann_index="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/hpo/nmslib_index.bin",  # noqa
-#     tfidf_vectorizer="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/hpo/tfidf_vectorizer.joblib",  # noqa
-#     tfidf_vectors="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/hpo/tfidf_vectors_sparse.npz",  # noqa
-#     concept_aliases_list="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/hpo/concept_aliases.json",  # noqa
-# )
-#
-# RxNormLinkerPaths = LinkerPaths(
-#     ann_index="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/rxnorm/nmslib_index.bin",  # noqa
-#     tfidf_vectorizer="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/rxnorm/tfidf_vectorizer.joblib",  # noqa
-#     tfidf_vectors="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/rxnorm/tfidf_vectors_sparse.npz",  # noqa
-#     concept_aliases_list="https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/linkers/2020-10-09/rxnorm/concept_aliases.json",  # noqa
-# )
-
 
 DEFAULT_PATHS: Dict[str, LinkerPaths] = {
     "gbif_backbone": GbifLinkerPaths,
     "taxref": TaxRefLinkerPaths,
-    # "umls": UmlsLinkerPaths,
-    # "mesh": MeshLinkerPaths,
-    # "go": GeneOntologyLinkerPaths,
-    # "hpo": HumanPhenotypeOntologyLinkerPaths,
-    # "rxnorm": RxNormLinkerPaths,
 }
-
-# DEFAULT_KNOWLEDGE_BASES: Dict[str, Type[KnowledgeBase]] = {
-#     "gbif": Gbif,
-#     "taxref": TaxRef,
-#     # "umls": UmlsKnowledgeBase,
-#     # "mesh": Mesh,
-#     # "go": GeneOntology,
-#     # "hpo": HumanPhenotypeOntology,
-#     # "rxnorm": RxNorm,
-# }
 
 
 class MentionCandidate(NamedTuple):

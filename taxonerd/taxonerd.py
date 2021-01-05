@@ -107,19 +107,22 @@ class TaxoNERD:
             )
 
         df = pd.DataFrame(entities)
-        df = df.rename("T{}".format)
-        return df.dropna()
+        df = df.dropna()
+        df = df.loc[df.astype(str).drop_duplicates().index]
+        df = df.reset_index(drop=True)
+        return df.rename("T{}".format)
 
     def get_abbreviated_tax_entity(self, text, entities, abbreviations):
         ents = [ent["text"] for ent in entities]
         abbreviations = [
-            {
-                "offsets": "LIVB {} {}".format(abrv.start_char, abrv.end_char),
-                "text": text[abrv.start_char : abrv.end_char]
-                + ";"
-                + abrv._.long_form.text,
-                "entity": abrv._.kb_ents,
-            }
+            self.get_entity_dict(abrv, text)
+            # {
+            #     "offsets": "LIVB {} {}".format(abrv.start_char, abrv.end_char),
+            #     "text": text[abrv.start_char : abrv.end_char]
+            #     + ";"
+            #     + abrv._.long_form.text,
+            #     "entity": abrv._.kb_ents,
+            # }
             for abrv in abbreviations
             if abrv._.long_form.text in ents
         ]
