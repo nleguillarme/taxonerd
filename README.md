@@ -1,3 +1,5 @@
+<img src="https://github.com/nleguillarme/taxonerd/blob/main/taxonerd_logo.png" width="40%">
+
 Looking for taxon mentions in text? Ask TaxoNERD
 
 * [Features](#features)
@@ -10,7 +12,10 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 
 * Based on the en_core_sci_md model from [scispaCy](https://allenai.github.io/scispacy/), fine-tuned on an ecological corpus
 * Find scientific names, common names and user-defined abbreviations
-* Lightning-fast on CPU (once the model is loaded), can use GPU to speed-up the recognition process
+* Can link taxon mentions to entities in a reference taxonomy (GBIF Backbone and TAXREF at the moment, more to come)
+* TaxoNERD is fast (once the model is loaded), and can run on CPU or GPU
+* Entity linking does not need an internet connection, but may require a lot of RAM depending on the size of the taxonomy (e.g. GBIF Backbone -> 15Gb)
+* Thanks to [textract](https://textract.readthedocs.io/en/stable/), TaxoNERD can extract taxon mentions from (almost) any document (including txt, pdf, csv, xls, jpg, png, and many other formats)
 * Available as a command-line tool and a python module
 
 ## Installation
@@ -31,6 +36,8 @@ Options:
   -o, --output-dir TEXT  Output directory
   -f, --filename TEXT    Input text file
   -a, --with-abbrev      Add abbreviation detector to the pipeline
+  -l, --link-to TEXT     Add entity linker to the pipeline
+  -t, --thresh FLOAT     Similarity threshold for entity candidates (default = 0.7)
   --gpu                  Use GPU if available
   -v, --verbose          Verbose mode
   --help                 Show this message and exit.
@@ -46,6 +53,17 @@ T0	LIVB 0 11	Brown bears
 T1	LIVB 13 25	Ursus arctos
 ```
 
+  ##### Taxonomic NER with entity linking from the terminal
+
+``` console
+$ taxonerd ask -l gbif_backbone "Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivores"
+T0	LIVB 0 11	Brown bears	[('GBIF:2433433', 'Brown Bear', 0.8313919901847839)]
+T1	LIVB 13 25	Ursus arctos	[('GBIF:2433433', 'Ursus arctos', 1.0)]
+
+$ taxonerd ask -l gbif_backbone -t 0.85 "Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivores"
+T0	LIVB 13 25	Ursus arctos	[('GBIF:2433433', 'Ursus arctos', 1.0)]
+```
+
   ##### Taxonomic NER from a text file (with abbreviation detection)
 
 ``` console
@@ -56,9 +74,8 @@ T2	LIVB 29 55	Bursaphelenchus xylophilus
 T3	LIVB 180 188	Serratia
 T4	LIVB 326 348	Serratia grimesii BXF1
 T5	LIVB 424 428	BXF1
-T6	LIVB 241 244	PWN;pinewood nematode
-T7	LIVB 371 374	PWN;pinewood nematode
-T8	LIVB 23 26	PWN;pinewood nematode
+T7	LIVB 371 374	PWN
+T8	LIVB 241 244	PWN
 ```
 
   ##### Taxonomic NER from a directory containing text files, with results written in the output directory
@@ -88,7 +105,7 @@ T13	LIVB 3381 3392	chum salmon
 
 ``` python
 >>> from taxonerd import TaxoNERD
->>> ner = TaxoNERD(model="en_ner_eco_md", with_gpu=False, with_abbrev=False)
+>>> ner = TaxoNERD(model="en_ner_eco_md", with_gpu=False, with_abbrev=False) # Add with_linking="gbif_backbone" or with_linking="taxref" to activate entity linking
 ```
 #### Examples
 
