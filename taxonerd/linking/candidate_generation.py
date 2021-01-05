@@ -10,8 +10,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import nmslib
 from nmslib.dist import FloatIndex
 
-from scispacy.file_cache import cached_path
+from .file_cache import cached_path
 from .linking_utils import KnowledgeBase, KnowledgeBaseFactory
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class LinkerPaths(NamedTuple):
@@ -34,17 +37,41 @@ class LinkerPaths(NamedTuple):
 
 
 GbifLinkerPaths = LinkerPaths(
-    ann_index="https://cloud.univ-grenoble-alpes.fr/index.php/s/TrgYQDqPsasW6o9/download",  # nmslib_index.bin
-    tfidf_vectorizer="https://cloud.univ-grenoble-alpes.fr/index.php/s/2gi6knSb3NxkP3x/download",  # tfidf_vectorizer.joblib
-    tfidf_vectors="https://cloud.univ-grenoble-alpes.fr/index.php/s/rNbdMwCpZGTfMJN/download",  # tfidf_vectors_sparse.npz
-    concept_aliases_list="https://cloud.univ-grenoble-alpes.fr/index.php/s/P2bnEdPk8HJMjkE/download",  # concept_aliases.json
+    ann_index=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/TrgYQDqPsasW6o9/download",
+        "gbif_backbone_2019_09_06/nmslib_index.bin",
+    ),  # nmslib_index.bin
+    tfidf_vectorizer=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/2gi6knSb3NxkP3x/download",
+        "gbif_backbone_2019_09_06/tfidf_vectorizer.joblib",
+    ),  # tfidf_vectorizer.joblib
+    tfidf_vectors=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/rNbdMwCpZGTfMJN/download",
+        "gbif_backbone_2019_09_06/tfidf_vectors_sparse.npz",
+    ),  # tfidf_vectors_sparse.npz
+    concept_aliases_list=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/P2bnEdPk8HJMjkE/download",
+        "gbif_backbone_2019_09_06/concept_aliases.json",
+    ),  # concept_aliases.json
 )
 
 TaxRefLinkerPaths = LinkerPaths(
-    ann_index="https://cloud.univ-grenoble-alpes.fr/index.php/s/CxwtGT4qNNNCcPc/download",  # nmslib_index.bin
-    tfidf_vectorizer="https://cloud.univ-grenoble-alpes.fr/index.php/s/8z2iYsNYYw58Q2i/download",  # tfidf_vectorizer.joblib
-    tfidf_vectors="https://cloud.univ-grenoble-alpes.fr/index.php/s/ekKWnQoTbKQYxQx/download",  # tfidf_vectors_sparse.npz
-    concept_aliases_list="https://cloud.univ-grenoble-alpes.fr/index.php/s/LzcdQF4Zs8xqyZ8/download",  # concept_aliases.json
+    ann_index=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/CxwtGT4qNNNCcPc/download",
+        "taxref_v13/nmslib_index.bin",
+    ),  # nmslib_index.bin
+    tfidf_vectorizer=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/8z2iYsNYYw58Q2i/download",
+        "taxref_v13/tfidf_vectorizer.joblib",
+    ),  # tfidf_vectorizer.joblib
+    tfidf_vectors=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/ekKWnQoTbKQYxQx/download",
+        "taxref_v13/tfidf_vectors_sparse.npz",
+    ),  # tfidf_vectors_sparse.npz
+    concept_aliases_list=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/LzcdQF4Zs8xqyZ8/download",
+        "taxref_v13/concept_aliases.json",
+    ),  # concept_aliases.json
 )
 
 DEFAULT_PATHS: Dict[str, LinkerPaths] = {
@@ -55,7 +82,7 @@ DEFAULT_PATHS: Dict[str, LinkerPaths] = {
 
 class MentionCandidate(NamedTuple):
     """
-    A data class representing a candidate entity that a mention may be linked to.
+    A data class representiget_from_cacheng a candidate entity that a mention may be linked to.
 
     Parameters
     ----------
@@ -209,7 +236,7 @@ class CandidateGenerator:
         empty_vectors_boolean_flags = numpy.array(vectors.sum(axis=1) != 0).reshape(-1)
         empty_vectors_count = vectors.shape[0] - sum(empty_vectors_boolean_flags)
         if self.verbose:
-            print(f"Number of empty vectors: {empty_vectors_count}")
+            logger.info(f"Number of empty vectors: {empty_vectors_count}")
 
         # init extended_neighbors with a list of Nones
         extended_neighbors = numpy.empty(
@@ -274,7 +301,7 @@ class CandidateGenerator:
         to the same canonical id.
         """
         if self.verbose:
-            print(f"Generating candidates for {len(mention_texts)} mentions")
+            logger.info(f"Generating candidates for {len(mention_texts)} mentions")
 
         # tfidf vectorizer crashes on an empty array, so we return early here
         if mention_texts == []:
@@ -289,7 +316,7 @@ class CandidateGenerator:
         end_time = datetime.datetime.now()
         total_time = end_time - start_time
         if self.verbose:
-            print(f"Finding neighbors took {total_time.total_seconds()} seconds")
+            logger.info(f"Finding neighbors took {total_time.total_seconds()} seconds")
         batch_mention_candidates = []
         for neighbors, distances in zip(batch_neighbors, batch_distances):
             if neighbors is None:

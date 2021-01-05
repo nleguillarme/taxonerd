@@ -3,7 +3,7 @@ import json
 from collections import defaultdict
 import sqlite3
 
-from scispacy.file_cache import cached_path
+from .file_cache import cached_path
 from scispacy.umls_semantic_type_tree import (
     UmlsSemanticTypeTree,
     construct_umls_tree_from_tsv,

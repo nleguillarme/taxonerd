@@ -31,7 +31,10 @@ def cli():
 )
 @click.option("--link-to", "-l", type=str, help="Add entity linker to the pipeline")
 @click.option(
-    "--thresh", "-t", help="Similarity threshold for entity candidates", default=0.7
+    "--thresh",
+    "-t",
+    help="Similarity threshold for entity candidates (default = 0.7)",
+    default=0.7,
 )
 @click.option("--gpu", type=bool, help="Use GPU if available", is_flag=True)
 @click.option("--verbose", "-v", type=bool, help="Verbose mode", is_flag=True)
@@ -60,6 +63,7 @@ def ask(
         with_linking=link_to,
         threshold=thresh,
         with_gpu=gpu,
+        verbose=verbose,
         logger=logger,
     )
 

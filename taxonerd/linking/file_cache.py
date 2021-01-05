@@ -12,12 +12,15 @@ from typing import Tuple, Union, IO
 from hashlib import sha256
 
 import requests
+import logging
 
 CACHE_ROOT = Path(os.getenv("SCISPACY_CACHE", str(Path.home() / ".scispacy")))
 DATASET_CACHE = str(CACHE_ROOT / "datasets")
 
+logger = logging.getLogger(__name__)
 
-def cached_path(url_or_filename: Union[str, Path], cache_dir: str = None) -> str:
+
+def cached_path(url_or_filename: Union[str, Path, Tuple], cache_dir: str = None) -> str:
     """
     Given something that might be a URL (or might be a local path),
     determine which. If it's a URL, download the file and cache it, and
@@ -26,6 +29,12 @@ def cached_path(url_or_filename: Union[str, Path], cache_dir: str = None) -> str
     """
     if cache_dir is None:
         cache_dir = DATASET_CACHE
+
+    user_friendly_name = None
+    if type(url_or_filename) is tuple:
+        user_friendly_name = url_or_filename[1]
+        url_or_filename = url_or_filename[0]
+
     if isinstance(url_or_filename, Path):
         url_or_filename = str(url_or_filename)
 
@@ -33,7 +42,7 @@ def cached_path(url_or_filename: Union[str, Path], cache_dir: str = None) -> str
 
     if parsed.scheme in ("http", "https"):
         # URL, so get it from the cache (downloading if necessary)
-        return get_from_cache(url_or_filename, cache_dir)
+        return get_from_cache(url_or_filename, user_friendly_name, cache_dir)
     elif os.path.exists(url_or_filename):
         # File, and it exists.
         return url_or_filename
@@ -99,7 +108,7 @@ def http_get(url: str, temp_file: IO) -> None:
             temp_file.write(chunk)
 
 
-def get_from_cache(url: str, cache_dir: str = None) -> str:
+def get_from_cache(url: str, name: str, cache_dir: str = None) -> str:
     """
     Given a URL, look for the corresponding dataset in the local cache.
     If it's not there, download it. Then return the path to the cached file.
@@ -118,7 +127,8 @@ def get_from_cache(url: str, cache_dir: str = None) -> str:
         )
     etag = response.headers.get("ETag")
 
-    filename = url_to_filename(url, etag)
+    url_for_filename = url if not name else url + f"/{name}"
+    filename = url_to_filename(url_for_filename, etag)
 
     # get cache path to put the file
     cache_path = os.path.join(cache_dir, filename)
@@ -127,7 +137,9 @@ def get_from_cache(url: str, cache_dir: str = None) -> str:
         # Download to temporary file, then copy to cache dir once finished.
         # Otherwise you get corrupt cache entries if the download gets interrupted.
         with tempfile.NamedTemporaryFile() as temp_file:  # type: IO
-            print(f"{url} not found in cache, downloading to {temp_file.name}")
+            logger.info(
+                f"{url_for_filename} not found in cache, downloading to {temp_file.name}"
+            )
 
             # GET file object
             http_get(url, temp_file)
@@ -137,7 +149,7 @@ def get_from_cache(url: str, cache_dir: str = None) -> str:
             # shutil.copyfileobj() starts at the current position, so go to the start
             temp_file.seek(0)
 
-            print(
+            logger.info(
                 f"Finished download, copying {temp_file.name} to cache at {cache_path}"
             )
             with open(cache_path, "wb") as cache_file:

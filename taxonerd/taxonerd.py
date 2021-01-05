@@ -17,10 +17,12 @@ class TaxoNERD:
         with_linking=None,
         threshold=0.7,
         with_gpu=False,
+        verbose=False,
         logger=None,
     ):
         self.logger = logger if logger else logging.getLogger(__name__)
         warnings.simplefilter("ignore")
+        self.verbose = verbose
         if with_gpu:
             self.logger.info("Use GPU")
             spacy.prefer_gpu()
@@ -32,12 +34,16 @@ class TaxoNERD:
 
         self.with_abbrev = with_abbrev
         if self.with_abbrev:
+            if self.verbose:
+                logger.info(f"Add AbbreviationDetector to pipeline")
             abbreviation_pipe = AbbreviationDetector(self.nlp)
             self.nlp.add_pipe(abbreviation_pipe)
 
         self.with_linking = with_linking != None
         if self.with_linking:
             kb_name = with_linking if with_linking != "" else "gbif_backbone"
+            if self.verbose:
+                logger.info(f"Add EntityLinker {kb_name} to pipeline")
             linker = self.create_linker(kb_name, threshold)
             self.nlp.add_pipe(linker)
 
@@ -49,7 +55,9 @@ class TaxoNERD:
         kb = KnowledgeBaseFactory().get_kb(kb_name)
 
         return EntityLinker(
-            candidate_generator=CandidateGenerator(name=kb_name, kb=kb),
+            candidate_generator=CandidateGenerator(
+                name=kb_name, kb=kb, verbose=self.verbose
+            ),
             resolve_abbreviations=self.with_abbrev,
             filter_for_definitions=False,
             k=1,
