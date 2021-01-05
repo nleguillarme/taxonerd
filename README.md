@@ -26,8 +26,8 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once.
 Currently (v1.0.0), there are 2 supported linkers:
 
-* gbif_backbone: Links to [GBIF Backbone Taxonomy (2019-09-06)](https://www.gbif.org/fr/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) (over 6M names for ~3.4 taxa).
-* taxref: Links to [TAXREF (v13)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/13.0/menu) (over 600000 names for ~267000 taxa).
+* gbif_backbone: Links to [GBIF Backbone Taxonomy (2019-09-06)](https://www.gbif.org/fr/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) (over 6M names for ~3.4M taxa).
+* taxref: Links to [TAXREF (v13)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/13.0/menu) (over 600k names for ~267k taxa).
 
 ## Usage
 
