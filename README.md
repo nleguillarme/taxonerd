@@ -20,6 +20,8 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 
 ## Installation
 
+TaxoNERD is only available for Python 3.6+
+
     $ pip install taxonerd
     $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v0.1.1/en_ner_eco_md-0.1.1.tar.gz
 
