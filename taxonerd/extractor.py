@@ -1,4 +1,3 @@
-import PyPDF2
 import textract
 import os
 from glob import glob
