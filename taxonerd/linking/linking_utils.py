@@ -1,5 +1,6 @@
-from typing import List, Dict, NamedTuple, Optional, Set
+from typing import List, Dict, NamedTuple, Optional, Set, Tuple, Union
 import json
+from pathlib import Path
 from collections import defaultdict
 import sqlite3
 
@@ -14,8 +15,7 @@ import os
 
 import logging
 
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger("EntityLinker")
+logger = logging.getLogger(__name__)
 
 
 class Entity(NamedTuple):
@@ -45,10 +45,6 @@ class Entity(NamedTuple):
         return rep
 
 
-# DEFAULT_UMLS_PATH = "https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/data/kbs/2020-10-09/umls_2020_aa_cat0129.jsonl"  # noqa
-# DEFAULT_UMLS_TYPES_PATH = "https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/data/umls_semantic_type_tree.tsv"
-
-
 class KnowledgeBase:
     """
     A class representing two commonly needed views of a Knowledge Base:
@@ -61,26 +57,29 @@ class KnowledgeBase:
         The file path to the json/jsonl representation of the KB to load.
     """
 
-    def __init__(self, file_path: str = None, prefix: str = ""):
+    def __init__(self, file_path: Union[str, Path, Tuple] = None, prefix: str = ""):
         self.prefix = prefix
         if file_path is None:
             raise ValueError(
                 "Do not use the default arguments to KnowledgeBase. "
-                "Instead, use a subclass (e.g UmlsKnowledgeBase) or pass a path to a kb."
+                "Instead, use a subclass (e.g GbifKnowledgeBase) or pass a path to a kb."
             )
 
+        file_path = cached_path(file_path)
+        if type(file_path) is tuple:
+            user_friendly_name = file_path[1]
+            file_path = file_path[0]
         db_path = os.path.splitext(file_path)[0] + ".db"
-        try:
-            db_path = cached_path(db_path)
-            logger.debug("Found {}".format(db_path, file_path))
-            self.conn = self.get_conn_to_db(db_path)
-        except FileNotFoundError:
-            logger.debug(
+
+        if not os.path.exists(db_path):
+            logger.info(
                 "File {} not found, create SQLite database from {}".format(
                     db_path, file_path
                 )
             )
             self.conn = self.json_to_sqlite(file_path, db_path)
+
+        self.conn = self.get_conn_to_db(db_path)
 
     def json_to_sqlite(self, file_path: str = None, db_path: str = None):
         if file_path.endswith("jsonl"):
@@ -138,69 +137,35 @@ class KnowledgeBase:
         return mentions_to_concepts
 
 
-# class UmlsKnowledgeBase(KnowledgeBase):
-#     def __init__(
-#         self,
-#         file_path: str = DEFAULT_UMLS_PATH,
-#         types_file_path: str = DEFAULT_UMLS_TYPES_PATH,
-#     ):
-#
-#         super().__init__(file_path)
-#
-#         self.semantic_type_tree: UmlsSemanticTypeTree = construct_umls_tree_from_tsv(
-#             types_file_path
-#         )
-
-
 class KnowledgeBaseFactory:
     def get_kb(self, name=None):
         if name == "gbif_backbone":
-            return Gbif()
+            return GbifKnowledgeBase()
         elif name == "taxref":
-            return TaxRef()
+            return TaxRefKnowledgeBase()
         else:
             raise ValueError(name)
 
 
-class Gbif(KnowledgeBase):
+class GbifKnowledgeBase(KnowledgeBase):
     def __init__(
-        self, file_path: str = "./gbif_backbone/gbif_backbone.jsonl", prefix="GBIF:"
+        self,
+        file_path=(
+            "https://cloud.univ-grenoble-alpes.fr/index.php/s/dm8attDW7EsdBpp/download",
+            "gbif_backbone_2019-09-06.jsonl",
+        ),
+        prefix="GBIF:",
     ):
         super().__init__(file_path, prefix)
 
 
-class TaxRef(KnowledgeBase):
-    def __init__(self, file_path: str = "./taxref/taxref.jsonl", prefix="TAXREF:"):
+class TaxRefKnowledgeBase(KnowledgeBase):
+    def __init__(
+        self,
+        file_path=(
+            "https://cloud.univ-grenoble-alpes.fr/index.php/s/B48pMS5DmjiiiAJ/download",
+            "taxref_v13.jsonl",
+        ),
+        prefix="TAXREF:",
+    ):
         super().__init__(file_path, prefix)
-
-
-# class Mesh(KnowledgeBase):
-#     def __init__(
-#         self,
-#         file_path: str = "https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/kbs/2020-10-09/mesh_2020.jsonl",  # noqa
-#     ):
-#         super().__init__(file_path)
-#
-#
-# class GeneOntology(KnowledgeBase):
-#     def __init__(
-#         self,
-#         file_path: str = "https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/kbs/2020-10-09/umls_2020_go.jsonl",  # noqa
-#     ):
-#         super().__init__(file_path)
-#
-#
-# class HumanPhenotypeOntology(KnowledgeBase):
-#     def __init__(
-#         self,
-#         file_path: str = "https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/kbs/2020-10-09/umls_2020_hpo.jsonl",  # noqa
-#     ):
-#         super().__init__(file_path)
-#
-#
-# class RxNorm(KnowledgeBase):
-#     def __init__(
-#         self,
-#         file_path: str = "https://ai2-s2-scispacy.s3-us-west-2.amazonaws.com/data/kbs/2020-10-09/umls_2020_rxnorm.jsonl",  # noqa
-#     ):
-#         super().__init__(file_path)
