@@ -143,6 +143,8 @@ class KnowledgeBaseFactory:
             return GbifKnowledgeBase()
         elif name == "taxref":
             return TaxRefKnowledgeBase()
+        elif name == "ncbi_taxonomy":
+            return NCBIKnowledgeBase()
         else:
             raise ValueError(name)
 
@@ -167,5 +169,16 @@ class TaxRefKnowledgeBase(KnowledgeBase):
             "taxref_v13.jsonl",
         ),
         prefix="TAXREF:",
+    ):
+        super().__init__(file_path, prefix)
+
+
+class NCBIKnowledgeBase(KnowledgeBase):
+    def __init__(
+        self,
+        file_path=Path(
+            "/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy/ncbi_taxonomy.jsonl"
+        ),
+        prefix="NCBI:",
     ):
         super().__init__(file_path, prefix)

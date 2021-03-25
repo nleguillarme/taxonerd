@@ -1,4 +1,5 @@
 from typing import List, Dict, Tuple, NamedTuple, Type
+from pathlib import Path
 import json
 import datetime
 from collections import defaultdict
@@ -74,9 +75,25 @@ TaxRefLinkerPaths = LinkerPaths(
     ),  # concept_aliases.json
 )
 
+NCBILinkerPaths = LinkerPaths(
+    ann_index=Path(
+        "/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy/nmslib_index.bin"
+    ),  # nmslib_index.bin
+    tfidf_vectorizer=Path(
+        "/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy/tfidf_vectorizer.joblib"
+    ),  # tfidf_vectorizer.joblib
+    tfidf_vectors=Path(
+        "/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy/tfidf_vectors_sparse.npz"
+    ),  # tfidf_vectors_sparse.npz
+    concept_aliases_list=Path(
+        "/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy/concept_aliases.json"
+    ),  # concept_aliases.json
+)
+
 DEFAULT_PATHS: Dict[str, LinkerPaths] = {
     "gbif_backbone": GbifLinkerPaths,
     "taxref": TaxRefLinkerPaths,
+    "ncbi_taxonomy": NCBILinkerPaths,
 }
 
 
