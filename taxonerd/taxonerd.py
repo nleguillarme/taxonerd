@@ -5,6 +5,7 @@ from glob import glob
 import warnings
 import sys
 import logging
+from spacy import displacy
 
 from scispacy.abbreviation import AbbreviationDetector
 
@@ -16,16 +17,17 @@ class TaxoNERD:
         with_abbrev=False,
         with_linking=None,
         threshold=0.7,
-        with_gpu=False,
+        prefer_gpu=False,
         verbose=False,
         logger=None,
     ):
         self.logger = logger if logger else logging.getLogger(__name__)
         warnings.simplefilter("ignore")
+
         self.verbose = verbose
-        if with_gpu:
-            self.logger.info("Use GPU")
+        if prefer_gpu:
             spacy.prefer_gpu()
+            self.logger.info("TaxoNERD will use GPU if available")
         self.logger.info("Load model {}".format(model))
         self.nlp = spacy.load(model)
         self.logger.info(
@@ -94,6 +96,7 @@ class TaxoNERD:
 
     def find_entities(self, text):
         doc = self.nlp(text)
+        # displacy.serve(doc, style="ent")
         entities = []
         if len(doc.ents) > 0:
             entities = [
@@ -101,11 +104,11 @@ class TaxoNERD:
                 for ent in doc.ents
                 if (
                     "\n" not in text[ent.start_char : ent.end_char].strip("\n")
-                    and ent.label_ == "LIVB"
+                    and (ent.label_ in ["LIVB", "TAXON"])
                 )
             ]
             for ent in doc.ents:
-                if ent.label_ != "LIVB":
+                if ent.label_ not in ["LIVB", "TAXON"]:
                     raise ValueError(ent.label_)
         if self.with_abbrev:
             entities += (

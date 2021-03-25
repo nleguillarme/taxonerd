@@ -12,12 +12,15 @@ def cli():
 
 
 @cli.command()
+# @click.option(
+#     "--model",
+#     "-m",
+#     type=str,
+#     help="A spaCy taxonomic NER model",
+#     # default="en_ner_eco_md",
+# )
 @click.option(
-    "--model",
-    "-m",
-    type=str,
-    help="A spaCy taxonomic NER model",
-    default="en_ner_eco_md",
+    "--focus-on", type=str, help="Focus on either speed or accuracy", default="speed"
 )
 @click.option("--input-dir", "-i", type=str, help="Input directory")
 @click.option("--output-dir", "-o", type=str, help="Output directory")
@@ -36,19 +39,20 @@ def cli():
     help="Similarity threshold for entity candidates (default = 0.7)",
     default=0.7,
 )
-@click.option("--gpu", type=bool, help="Use GPU if available", is_flag=True)
+@click.option("--prefer-gpu", type=bool, help="Use GPU if available", is_flag=True)
 @click.option("--verbose", "-v", type=bool, help="Verbose mode", is_flag=True)
 @click.argument("input_text", required=False)
 def ask(
-    model,
+    # model,
     input_dir,
     output_dir,
     filename,
     with_abbrev,
     link_to,
     thresh,
-    gpu,
+    prefer_gpu,
     verbose,
+    focus_on,
     input_text,
 ):
 
@@ -57,12 +61,21 @@ def ask(
         logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
     ext = TextExtractor(logger=logger)
+
+    ner_model = (
+        "en_ner_eco_biobert"
+        if (focus_on and focus_on == "accuracy")
+        else "en_ner_eco_md"
+    )
+
+    prefer_gpu = prefer_gpu if prefer_gpu else (focus_on == "accuracy")
+
     ner = TaxoNERD(
-        model=model,
+        model=ner_model,
         with_abbrev=with_abbrev,
         with_linking=link_to,
         threshold=thresh,
-        with_gpu=gpu,
+        prefer_gpu=prefer_gpu,
         verbose=verbose,
         logger=logger,
     )
