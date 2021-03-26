@@ -76,17 +76,21 @@ TaxRefLinkerPaths = LinkerPaths(
 )
 
 NCBILinkerPaths = LinkerPaths(
-    ann_index=Path(
-        "/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy/nmslib_index.bin"
+    ann_index=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/KFTJGLTaybAtXRr/download",
+        "ncbi_taxonomy/nmslib_index.bin",
     ),  # nmslib_index.bin
-    tfidf_vectorizer=Path(
-        "/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy/tfidf_vectorizer.joblib"
+    tfidf_vectorizer=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/7J7PDeLm9nqDfSW/download",
+        "ncbi_taxonomy/tfidf_vectorizer.joblib",
     ),  # tfidf_vectorizer.joblib
-    tfidf_vectors=Path(
-        "/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy/tfidf_vectors_sparse.npz"
+    tfidf_vectors=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/qs4Z3spF9fXyxcD/download",
+        "ncbi_taxonomy/tfidf_vectors_sparse.npz",
     ),  # tfidf_vectors_sparse.npz
-    concept_aliases_list=Path(
-        "/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy/concept_aliases.json"
+    concept_aliases_list=(
+        "https://cloud.univ-grenoble-alpes.fr/index.php/s/4qXgd8EoJRBFmbw/download",
+        "ncbi_taxonomy/concept_aliases.json",
     ),  # concept_aliases.json
 )
 

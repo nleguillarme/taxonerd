@@ -176,8 +176,9 @@ class TaxRefKnowledgeBase(KnowledgeBase):
 class NCBIKnowledgeBase(KnowledgeBase):
     def __init__(
         self,
-        file_path=Path(
-            "/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy/ncbi_taxonomy.jsonl"
+        file_path=(
+            "https://cloud.univ-grenoble-alpes.fr/index.php/s/tzitebfeCyrKgLa/download",
+            "ncbi_taxonomy.jsonl",
         ),
         prefix="NCBI:",
     ):
