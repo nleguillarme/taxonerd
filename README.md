@@ -23,7 +23,7 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 TaxoNERD is only available for Python 3.6+
 
     $ pip install taxonerd
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v0.1.1/en_ner_eco_md-0.1.1.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.0.1/en_ner_eco_md-0.1.1.tar.gz
 
 Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once.
 Currently (v1.0.0), there are 2 supported linkers:
