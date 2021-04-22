@@ -7,7 +7,8 @@ dependencies = [
     "click",
     "pandas>=0.24.2",
     "scispacy==0.4.0",
-    "spacy>=3.0.5,<3.1.0",
+    "spacy[cuda110]>=3.0.5,<3.1.0",
+    "spacy-transformers[cuda110]",
     "textract",
 ]
 
@@ -20,12 +21,12 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="taxonerd",
-    version="v1.0.2",
+    version="v1.1.0",
     url="https://github.com/nleguillarme/taxonerd",
     license="MIT",
     author="Nicolas Le Guillarme",
     author_email="nicolas.leguillarme@univ-grenoble-alpes.fr",
-    description="A deep neural model for taxonomic entity recognition",
+    description="Deep neural models for taxonomic entity recognition",
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=find_packages(exclude=["tests"]),
