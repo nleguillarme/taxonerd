@@ -6,6 +6,7 @@ import warnings
 import sys
 import logging
 from spacy import displacy
+import torch
 
 from scispacy.abbreviation import AbbreviationDetector
 
@@ -26,8 +27,11 @@ class TaxoNERD:
 
         self.verbose = verbose
         if prefer_gpu:
-            spacy.prefer_gpu()
-            self.logger.info("TaxoNERD will use GPU if available")
+            use_cuda = torch.cuda.is_available()
+            self.logger.info("GPU is available" if use_cuda else "GPU not found")
+            if use_cuda:
+                spacy.prefer_gpu()
+                self.logger.info("TaxoNERD will use GPU")
         self.logger.info("Load model {}".format(model))
         self.nlp = spacy.load(model)
         self.logger.info(

@@ -68,7 +68,7 @@ def ask(
         else "en_ner_eco_md"
     )
 
-    prefer_gpu = prefer_gpu if prefer_gpu else (focus_on == "accuracy")
+    prefer_gpu = prefer_gpu if prefer_gpu else False  # (focus_on == "accuracy")
 
     ner = TaxoNERD(
         model=ner_model,
