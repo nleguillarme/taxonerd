@@ -20,14 +20,18 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 
 ## Installation
 
-TaxoNERD is only available for Python 3.8+
+Installing the package from pip will automatically install all dependencies, including pandas, spaCy, scispaCy and textract. Make sure you install this package before you install the models. Also note that this package requires Python 3.8+ and spaCy v3.0+.
 
     $ pip install taxonerd
+
+For GPU support, find your CUDA version using `nvcc --version` and add the version in brackets, e.g. taxonerd[cuda102] for CUDA10.2 or taxonerd[cuda110] for CUDA11.0. Supported CUDA versions are 10.2, 11.0, 11.1, 11.2.
+
+To download the models:
+
     $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.1.1/en_ner_eco_md-1.0.0.tar.gz
     $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.1.1/en_ner_eco_biobert-1.0.0.tar.gz
 
-Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once.
-Currently (v1.1.1), there are 3 supported linkers:
+Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.1.1), there are 3 supported linkers:
 
 * gbif_backbone: Links to [GBIF Backbone Taxonomy (2019-09-06)](https://www.gbif.org/fr/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) (~9.5M names for ~3.5M taxa).
 * taxref: Links to [TAXREF (v13)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/13.0/menu) (~1.2M names for ~267k taxa).
