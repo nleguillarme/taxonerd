@@ -95,24 +95,36 @@ class EntityLinker:
         # self.umls = self.kb
 
     def __call__(self, doc: Doc) -> Doc:
-        mentions = []
+        mentions = doc.ents
+        # mentions = []
+
+        mention_strings = []
+
         if self.resolve_abbreviations and Doc.has_extension("abbreviations"):
 
             for ent in doc.ents:
                 # TODO: This is possibly sub-optimal - we might
                 # prefer to look up both the long and short forms.
                 if ent._.long_form is not None:
-                    mentions.append(ent._.long_form)
+                    mention_strings.append(ent._.long_form.text)
+                    # mentions.append(ent._.long_form)
                 else:
-                    mentions.append(ent)
+                    mention_strings.append(ent.text)
+                    # mentions.append(ent)
         else:
-            mentions = doc.ents
+            mention_strings = [x.text for x in mentions]
+            # mentions = doc.ents
 
-        mention_strings = [x.text for x in mentions]
+        # mention_strings = [x.text for x in mentions]
+        unique_mention_strings = set(mention_strings)
 
-        batch_candidates = self.candidate_generator(mention_strings, self.k)
+        batch_candidates = self.candidate_generator(unique_mention_strings, self.k)
+        # batch_candidates = self.candidate_generator(mention_strings, self.k)
 
-        for mention, candidates in zip(doc.ents, batch_candidates):
+        kb_ents_per_mention_string = {}
+
+        for mention_string, candidates in zip(unique_mention_strings, batch_candidates):
+            # for mention, candidates in zip(doc.ents, batch_candidates):
             predicted = []
             for cand in candidates:
                 score = max(cand.similarities)
@@ -127,7 +139,18 @@ class EntityLinker:
             sorted_predicted = sorted(predicted, reverse=True, key=lambda x: x[2])
             # mention._.umls_ents = sorted_predicted[: self.max_entities_per_mention]
             kb_ents = sorted_predicted[: self.max_entities_per_mention]
-            mention._.kb_ents = kb_ents if kb_ents != [] else None
+
+            kb_ents_per_mention_string[mention_string] = kb_ents if kb_ents else None
+            # mention._.kb_ents = kb_ents if kb_ents != [] else None
+
+        for mention in mentions:
+            if self.resolve_abbreviations and Doc.has_extension("abbreviations"):
+                if mention._.long_form is not None:
+                    mention._.kb_ents = kb_ents_per_mention_string[
+                        mention._.long_form.text
+                    ]
+                    continue
+            mention._.kb_ents = kb_ents_per_mention_string[mention.text]
 
         # Remove unlinked entities (fix #3)
         # new_ents = []
