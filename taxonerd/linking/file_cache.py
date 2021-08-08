@@ -14,7 +14,7 @@ from hashlib import sha256
 import requests
 import logging
 
-CACHE_ROOT = Path(os.getenv("SCISPACY_CACHE", str(Path.home() / ".scispacy")))
+CACHE_ROOT = Path(os.getenv("TAXONERD_CACHE", str(Path.home() / ".taxonerd")))
 DATASET_CACHE = str(CACHE_ROOT / "datasets")
 
 logger = logging.getLogger(__name__)

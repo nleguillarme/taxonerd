@@ -8,7 +8,9 @@ import logging
 from spacy import displacy
 import torch
 
-from scispacy.abbreviation import AbbreviationDetector
+# from scispacy.abbreviation import AbbreviationDetector
+
+from taxonerd.abbreviation import TaxonomicAbbreviationDetector
 
 
 class TaxoNERD:
@@ -41,8 +43,8 @@ class TaxoNERD:
         self.with_abbrev = with_abbrev
         if self.with_abbrev:
             if self.verbose:
-                logger.info(f"Add AbbreviationDetector to pipeline")
-            self.nlp.add_pipe("abbreviation_detector")
+                logger.info(f"Add TaxonomicAbbreviationDetector to pipeline")
+            self.nlp.add_pipe("taxonomic_abbreviation_detector")
 
         self.with_linking = with_linking != None
         if self.with_linking:

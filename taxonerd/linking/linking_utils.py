@@ -145,6 +145,8 @@ class KnowledgeBaseFactory:
             return TaxRefKnowledgeBase()
         elif name == "ncbi_taxonomy":
             return NCBIKnowledgeBase()
+        elif name == "ncbi_lite":
+            return NCBILiteKnowledgeBase()
         else:
             raise ValueError(name)
 
@@ -180,6 +182,15 @@ class NCBIKnowledgeBase(KnowledgeBase):
             "https://cloud.univ-grenoble-alpes.fr/index.php/s/tzitebfeCyrKgLa/download",
             "ncbi_taxonomy.jsonl",
         ),
+        prefix="NCBI:",
+    ):
+        super().__init__(file_path, prefix)
+
+
+class NCBILiteKnowledgeBase(KnowledgeBase):
+    def __init__(
+        self,
+        file_path="/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy_lite/ncbi_taxonomy_lite.jsonl",
         prefix="NCBI:",
     ):
         super().__init__(file_path, prefix)

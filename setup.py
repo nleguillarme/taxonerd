@@ -4,11 +4,10 @@ Taxonomic named entity recognition using deep models
 from setuptools import find_packages, setup
 
 install_requires = [
-    "click",
-    "pandas>=0.24.2",
+    # "click",
+    "click<7.2.0,>=7.1.1" "pandas>=0.24.2",
     "scispacy==0.4.0",
     "spacy[transformers]>=3.0.5,<3.1.0",
-    # "spacy-transformers[cuda110]",
     "textract>=1.6.3",
 ]
 
@@ -17,6 +16,7 @@ extras_require = {
     "cuda110": ["spacy[cuda110]>=3.0.5,<3.1.0", "spacy-transformers[cuda110]"],
     "cuda111": ["spacy[cuda111]>=3.0.5,<3.1.0", "spacy-transformers[cuda111]"],
     "cuda112": ["spacy[cuda112]>=3.0.5,<3.1.0", "spacy-transformers[cuda112]"],
+    "cuda113": ["spacy[cuda113]>=3.0.5,<3.1.0", "spacy-transformers[cuda113]"],
 }
 
 # read the contents of your README file
@@ -28,7 +28,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="taxonerd",
-    version="v1.1.1",
+    version="v1.1.2",
     url="https://github.com/nleguillarme/taxonerd",
     license="MIT",
     author="Nicolas Le Guillarme",

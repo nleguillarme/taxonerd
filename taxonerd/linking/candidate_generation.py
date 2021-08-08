@@ -94,10 +94,18 @@ NCBILinkerPaths = LinkerPaths(
     ),  # concept_aliases.json
 )
 
+NCBILiteLinkerPaths = LinkerPaths(
+    ann_index="/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy_lite/nmslib_index.bin",  # nmslib_index.bin
+    tfidf_vectorizer="/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy_lite/tfidf_vectorizer.joblib",  # tfidf_vectorizer.joblib
+    tfidf_vectors="/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy_lite/tfidf_vectors_sparse.npz",  # tfidf_vectors_sparse.npz
+    concept_aliases_list="/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy_lite/concept_aliases.json",  # concept_aliases.json
+)
+
 DEFAULT_PATHS: Dict[str, LinkerPaths] = {
     "gbif_backbone": GbifLinkerPaths,
     "taxref": TaxRefLinkerPaths,
     "ncbi_taxonomy": NCBILinkerPaths,
+    "ncbi_lite": NCBILiteLinkerPaths,
 }
 
 

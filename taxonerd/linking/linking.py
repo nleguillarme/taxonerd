@@ -109,6 +109,7 @@ class EntityLinker:
             mentions = doc.ents
 
         mention_strings = [x.text for x in mentions]
+
         batch_candidates = self.candidate_generator(mention_strings, self.k)
 
         for mention, candidates in zip(doc.ents, batch_candidates):
@@ -127,5 +128,12 @@ class EntityLinker:
             # mention._.umls_ents = sorted_predicted[: self.max_entities_per_mention]
             kb_ents = sorted_predicted[: self.max_entities_per_mention]
             mention._.kb_ents = kb_ents if kb_ents != [] else None
+
+        # Remove unlinked entities (fix #3)
+        # new_ents = []
+        # for ent in doc.ents:
+        #     if ent._.kb_ents:
+        #         new_ents.append(ent)
+        # doc.ents = new_ents
 
         return doc
