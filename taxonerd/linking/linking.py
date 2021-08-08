@@ -143,6 +143,7 @@ class EntityLinker:
             kb_ents_per_mention_string[mention_string] = kb_ents if kb_ents else None
             # mention._.kb_ents = kb_ents if kb_ents != [] else None
 
+        new_ents = []
         for mention in mentions:
             if self.resolve_abbreviations and Doc.has_extension("abbreviations"):
                 if mention._.long_form is not None:
@@ -151,12 +152,9 @@ class EntityLinker:
                     ]
                     continue
             mention._.kb_ents = kb_ents_per_mention_string[mention.text]
+            if mention._.kb_ents:
+                new_ents.append(mention)
 
-        # Remove unlinked entities (fix #3)
-        # new_ents = []
-        # for ent in doc.ents:
-        #     if ent._.kb_ents:
-        #         new_ents.append(ent)
-        # doc.ents = new_ents
+        doc.ents = new_ents  # Remove unlinked entities (fix #3)
 
         return doc
