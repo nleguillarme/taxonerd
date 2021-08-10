@@ -18,6 +18,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def escape_quotes(alias):
+    alias = alias.replace("'", "''")
+    alias = alias.replace('"', '""')
+    return alias
+
+
 class Entity(NamedTuple):
 
     concept_id: str
@@ -117,12 +123,21 @@ class KnowledgeBase:
 
     def get_cuis_from_alias(self, alias):
         c = self.conn.cursor()
-        c.execute("SELECT cuis FROM alias_to_cuis WHERE alias = '{}';".format(alias))
+        try:
+            c.execute(
+                "SELECT cuis FROM alias_to_cuis WHERE alias = '{}';".format(
+                    escape_quotes(alias)
+                )
+            )
+        except Exception as e:
+            print(e, alias)
         return [self.prefix + c.fetchone()[0].strip("{}")]
 
     def get_cuis_from_aliases(self, aliases):
         c = self.conn.cursor()
-        aliases_str = ["'{}'".format(alias) for alias in aliases]
+        aliases_str = [
+            "'{}'".format(escape_quotes(alias)) for alias in aliases
+        ]  # Escape ' with ''
         c.execute(
             "SELECT alias, cuis FROM alias_to_cuis WHERE alias IN ({});".format(
                 ",".join(aliases_str)
