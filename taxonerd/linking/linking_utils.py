@@ -195,7 +195,7 @@ class NCBIKnowledgeBase(KnowledgeBase):
         self,
         file_path=(
             "https://cloud.univ-grenoble-alpes.fr/index.php/s/tzitebfeCyrKgLa/download",
-            "ncbi_taxonomy.jsonl",
+            "ncbi_taxonomy_2021_03_25.jsonl",
         ),
         prefix="NCBI:",
     ):
@@ -205,7 +205,10 @@ class NCBIKnowledgeBase(KnowledgeBase):
 class NCBILiteKnowledgeBase(KnowledgeBase):
     def __init__(
         self,
-        file_path="/home/leguilln/workspace/INFORMATION_EXTRACTION/taxonerd/dev/linking/ncbi_taxonomy_lite/ncbi_taxonomy_lite.jsonl",
+        file_path=(
+            "https://cloud.univ-grenoble-alpes.fr/index.php/s/cAmmpE6FxDxNBHj/download",
+            "ncbi_lite_2021_03_25.jsonl",
+        ),
         prefix="NCBI:",
     ):
         super().__init__(file_path, prefix)
