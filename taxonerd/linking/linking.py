@@ -118,43 +118,49 @@ class EntityLinker:
         # mention_strings = [x.text for x in mentions]
         unique_mention_strings = set(mention_strings)
 
-        batch_candidates = self.candidate_generator(unique_mention_strings, self.k)
-        # batch_candidates = self.candidate_generator(mention_strings, self.k)
+        if len(unique_mention_strings) > 0:
 
-        kb_ents_per_mention_string = {}
+            batch_candidates = self.candidate_generator(unique_mention_strings, self.k)
+            # batch_candidates = self.candidate_generator(mention_strings, self.k)
 
-        for mention_string, candidates in zip(unique_mention_strings, batch_candidates):
-            # for mention, candidates in zip(doc.ents, batch_candidates):
-            predicted = []
-            for cand in candidates:
-                score = max(cand.similarities)
-                if (
-                    self.filter_for_definitions
-                    and self.kb.cui_to_entity[cand.concept_id].definition is None
-                    and score < self.no_definition_threshold
-                ):
-                    continue
-                if score > self.threshold:
-                    predicted.append((cand.concept_id, cand.aliases[0], score))
-            sorted_predicted = sorted(predicted, reverse=True, key=lambda x: x[2])
-            # mention._.umls_ents = sorted_predicted[: self.max_entities_per_mention]
-            kb_ents = sorted_predicted[: self.max_entities_per_mention]
+            kb_ents_per_mention_string = {}
 
-            kb_ents_per_mention_string[mention_string] = kb_ents if kb_ents else None
-            # mention._.kb_ents = kb_ents if kb_ents != [] else None
+            for mention_string, candidates in zip(
+                unique_mention_strings, batch_candidates
+            ):
+                # for mention, candidates in zip(doc.ents, batch_candidates):
+                predicted = []
+                for cand in candidates:
+                    score = max(cand.similarities)
+                    if (
+                        self.filter_for_definitions
+                        and self.kb.cui_to_entity[cand.concept_id].definition is None
+                        and score < self.no_definition_threshold
+                    ):
+                        continue
+                    if score > self.threshold:
+                        predicted.append((cand.concept_id, cand.aliases[0], score))
+                sorted_predicted = sorted(predicted, reverse=True, key=lambda x: x[2])
+                # mention._.umls_ents = sorted_predicted[: self.max_entities_per_mention]
+                kb_ents = sorted_predicted[: self.max_entities_per_mention]
 
-        new_ents = []
-        for mention in mentions:
-            if self.resolve_abbreviations and Doc.has_extension("abbreviations"):
-                if mention._.long_form is not None:
-                    mention._.kb_ents = kb_ents_per_mention_string[
-                        mention._.long_form.text
-                    ]
-                    continue
-            mention._.kb_ents = kb_ents_per_mention_string[mention.text]
-            if mention._.kb_ents:
-                new_ents.append(mention)
+                kb_ents_per_mention_string[mention_string] = (
+                    kb_ents if kb_ents else None
+                )
+                # mention._.kb_ents = kb_ents if kb_ents != [] else None
 
-        doc.ents = new_ents  # Remove unlinked entities (fix #3)
+            new_ents = []
+            for mention in mentions:
+                if self.resolve_abbreviations and Doc.has_extension("abbreviations"):
+                    if mention._.long_form is not None:
+                        mention._.kb_ents = kb_ents_per_mention_string[
+                            mention._.long_form.text
+                        ]
+                        continue
+                mention._.kb_ents = kb_ents_per_mention_string[mention.text]
+                if mention._.kb_ents:
+                    new_ents.append(mention)
+
+            doc.ents = new_ents  # Remove unlinked entities (fix #3)
 
         return doc

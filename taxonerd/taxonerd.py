@@ -109,6 +109,7 @@ class TaxoNERD:
                     "\n" not in text[ent.start_char : ent.end_char].strip("\n")
                     and (ent.label_ in ["LIVB", "TAXON"])
                     and (ent._.kb_ents if self.with_linking else True)
+                    and ((ent not in doc._.abbreviations) if self.with_abbrev else True)
                 )
             ]
             for ent in doc.ents:
@@ -138,6 +139,6 @@ class TaxoNERD:
                 else None,
             )
             for abrv in abbreviations
-            if abrv._.long_form.text in ents
-        ]
+            if abrv._.long_form and abrv._.long_form.text in ents
+        ]  # Abbreviated species name without a long form will not appear in the results
         return abbreviations

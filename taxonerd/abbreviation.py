@@ -47,9 +47,13 @@ class TaxonomicAbbreviationDetector(AbbreviationDetector):
                     )  # What if several matches for long form ?
                     short_to_long_map[short_candidate.text] = long_form
 
+                else:
+                    short_to_long_map[short_candidate.text] = None
+
             if short_candidate.text in short_to_long_map:
                 short_candidate._.long_form = short_to_long_map[short_candidate.text]
                 doc._.abbreviations.append(short_candidate)
+                # print(short_candidate.text, short_candidate._.long_form)
         return doc
 
     def is_abbreviated_scientific_name(self, span):
