@@ -1,0 +1,19 @@
+---
+title: "Recognizing taxonomic entity mentions in text using TaxoNERD"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{taxonerd}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(taxonerd)
+```
