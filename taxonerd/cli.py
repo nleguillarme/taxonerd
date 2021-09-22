@@ -1,9 +1,9 @@
 import click
-from taxonerd import TaxoNERD
-from taxonerd.extractor import TextExtractor
 import sys
+import os
 import logging
 import logging.config
+from taxonerd import TaxoNERD
 
 
 @click.group()
@@ -43,7 +43,6 @@ def cli():
 @click.option("--verbose", "-v", type=bool, help="Verbose mode", is_flag=True)
 @click.argument("input_text", required=False)
 def ask(
-    # model,
     input_dir,
     output_dir,
     filename,
@@ -59,8 +58,6 @@ def ask(
     logger = logging.getLogger(__name__)
     if verbose:
         logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
-
-    ext = TextExtractor(logger=logger)
 
     ner_model = (
         "en_ner_eco_biobert"
@@ -80,15 +77,28 @@ def ask(
         logger=logger,
     )
 
+    if output_dir:
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
     if input_text:
-        df = ner.find_entities(input_text)
+        df = ner.find_in_text(input_text)
         df.to_csv(sys.stdout, sep="\t", header=False)
-    elif input_dir:
-        input_dir = ext(input_dir)
-        ner.find_all_files(input_dir, output_dir)
-    elif filename:
-        filename = ext(filename)
-        ner.find_in_file(filename, output_dir)
+    else:
+        dfs = {}
+        if filename:
+            dfs[os.path.basename(filename)] = ner.find_in_file(filename, output_dir)
+        elif input_dir:
+            dfs = ner.find_in_corpus(input_dir, output_dir)
+
+        if not output_dir:
+            if len(dfs) > 1:
+                for filename in dfs:
+                    dfs[filename] = dfs[filename].set_index(
+                        filename + "_" + dfs[filename].index.astype(str)
+                    )
+            for filename in dfs:
+                dfs[filename].to_csv(sys.stdout, sep="\t", header=False)
 
 
 def main():

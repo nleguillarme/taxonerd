@@ -8,9 +8,8 @@ import logging
 from spacy import displacy
 import torch
 
-# from scispacy.abbreviation import AbbreviationDetector
-
 from taxonerd.abbreviation import TaxonomicAbbreviationDetector
+from taxonerd.extractor import TextExtractor
 
 
 class TaxoNERD:
@@ -28,6 +27,7 @@ class TaxoNERD:
         warnings.simplefilter("ignore")
 
         self.verbose = verbose
+        self.extractor = TextExtractor(logger=self.logger)
         if prefer_gpu:
             use_cuda = torch.cuda.is_available()
             self.logger.info("GPU is available" if use_cuda else "GPU not found")
@@ -69,35 +69,31 @@ class TaxoNERD:
             },
         )
 
-    def find_all_files(self, input_dir, output_dir=None):
+    def find_in_corpus(self, input_dir, output_dir=None):
+        df_map = {}
+        input_dir = self.extractor(input_dir)
         for filename in glob(os.path.join(input_dir, "*.txt")):
-            self.find_in_file(filename, output_dir)
+            df_map[os.path.basename(filename)] = self.find_in_file(filename, output_dir)
+        return df_map
 
     def find_in_file(self, filename, output_dir=None):
         if not os.path.exists(filename):
-            raise FileNotFoundError("file {} not found".format(path))
+            raise FileNotFoundError("File {} not found".format(path))
+        filename = self.extractor(filename)
         self.logger.info("Extract taxa from file {}".format(filename))
         with open(filename, "r") as f:
             text = f.read()
-        ann_filename = ".".join(os.path.basename(filename).split(".")[:-1]) + ".ann"
-        df = self.find_entities(text)
+        df = self.find_in_text(text)
         if output_dir:
-            if not os.path.exists(output_dir):
-                os.makedirs(output_dir)
-            df.to_csv(os.path.join(output_dir, ann_filename), sep="\t", header=False)
-        else:
-            df.to_csv(sys.stdout, sep="\t", header=False)
+            ann_filename = os.path.join(
+                output_dir,
+                ".".join(os.path.basename(filename).split(".")[:-1]) + ".ann",
+            )
+            df.to_csv(ann_filename, sep="\t", header=False)
+            return ann_filename
+        return df
 
-    def get_entity_dict(self, ent, text, kb_ents=None):
-        ent_dict = {
-            "offsets": "LIVB {} {}".format(ent.start_char, ent.end_char),
-            "text": text[ent.start_char : ent.end_char].replace("\n", " "),
-        }
-        if self.with_linking:
-            ent_dict["entity"] = kb_ents if kb_ents else ent._.kb_ents
-        return ent_dict
-
-    def find_entities(self, text):
+    def find_in_text(self, text):
         doc = self.nlp(text)
         # displacy.serve(doc, style="ent")
         entities = []
@@ -127,6 +123,15 @@ class TaxoNERD:
         df = df.loc[df.astype(str).drop_duplicates().index]
         df = df.reset_index(drop=True)
         return df.rename("T{}".format)
+
+    def get_entity_dict(self, ent, text, kb_ents=None):
+        ent_dict = {
+            "offsets": "LIVB {} {}".format(ent.start_char, ent.end_char),
+            "text": text[ent.start_char : ent.end_char].replace("\n", " "),
+        }
+        if self.with_linking:
+            ent_dict["entity"] = kb_ents if kb_ents else ent._.kb_ents
+        return ent_dict
 
     def get_abbreviated_tax_entity(self, text, entities, abbreviations):
         ents = {ent["text"]: ent for ent in entities}
