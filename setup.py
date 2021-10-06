@@ -16,18 +16,22 @@ extras_require = {
     "cuda102": [
         "spacy[cuda102]>=3.0.5,<3.1.0",
         "spacy-transformers[cuda102]>=1.0.2,<1.0.5",
+        "cupy-cuda102",
     ],
     "cuda110": [
         "spacy[cuda110]>=3.0.5,<3.1.0",
         "spacy-transformers[cuda110]>=1.0.2,<1.0.5",
+        "cupy-cuda110",
     ],
     "cuda111": [
         "spacy[cuda111]>=3.0.5,<3.1.0",
         "spacy-transformers[cuda111]>=1.0.2,<1.0.5",
+        "cupy-cuda111",
     ],
     "cuda112": [
         "spacy[cuda112]>=3.0.5,<3.1.0",
         "spacy-transformers[cuda112]>=1.0.2,<1.0.5",
+        "cupy-cuda112",
     ],
 }
 
@@ -40,7 +44,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="taxonerd",
-    version="v1.2.0",
+    version="v1.2.1",
     url="https://github.com/nleguillarme/taxonerd",
     license="MIT",
     author="Nicolas Le Guillarme",

@@ -32,10 +32,10 @@ For GPU support, find your CUDA version using `nvcc --version` and add the versi
 
 To download the models:
 
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.2.0/en_ner_eco_md-1.0.0.tar.gz
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.2.0/en_ner_eco_biobert-1.0.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.2.1/en_ner_eco_md-1.0.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.2.1/en_ner_eco_biobert-1.0.0.tar.gz
 
-Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.2.0), there are 4 supported linkers:
+Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.2.1), there are 4 supported linkers:
 
 * gbif_backbone: Links to [GBIF Backbone Taxonomy (2019-09-06)](https://www.gbif.org/fr/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) (~9.5M names for ~3.5M taxa).
 * taxref: Links to [TAXREF (v13)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/13.0/menu) (~1.2M names for ~267k taxa).
