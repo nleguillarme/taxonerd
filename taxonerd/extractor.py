@@ -25,10 +25,15 @@ class TextExtractor:
             return path
         output_path = self.get_output_path(path)
         self.logger.info("Extract text from {} to {}".format(path, output_path))
-        text = textract.process(path).decode("utf-8")
-        with open(output_path, "w") as f:
-            f.write(text)
-        return output_path
+        try:
+            text = textract.process(path).decode("utf-8")
+        except Exception as e:
+            self.logger.error("{}. In file {}. Skip.".format(e, path))
+        else:
+            with open(output_path, "w") as f:
+                f.write(text)
+            return output_path
+        return None
 
     def extract_from_pdf_file(self, path):
         output_path = self.get_output_path(path)

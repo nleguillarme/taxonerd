@@ -32,7 +32,7 @@ class TaxoNERD:
             use_cuda = torch.cuda.is_available()
             self.logger.info("GPU is available" if use_cuda else "GPU not found")
             if use_cuda:
-                spacy.prefer_gpu()
+                spacy.require_gpu()
                 self.logger.info("TaxoNERD will use GPU")
         self.logger.info("Load model {}".format(model))
         self.nlp = spacy.load(model)
@@ -72,26 +72,31 @@ class TaxoNERD:
     def find_in_corpus(self, input_dir, output_dir=None):
         df_map = {}
         input_dir = self.extractor(input_dir)
-        for filename in glob(os.path.join(input_dir, "*.txt")):
-            df_map[os.path.basename(filename)] = self.find_in_file(filename, output_dir)
+        if input_dir:
+            for filename in glob(os.path.join(input_dir, "*.txt")):
+                df = self.find_in_file(filename, output_dir)
+                if df is not None:
+                    df_map[os.path.basename(filename)] = df
         return df_map
 
     def find_in_file(self, filename, output_dir=None):
         if not os.path.exists(filename):
             raise FileNotFoundError("File {} not found".format(path))
         filename = self.extractor(filename)
-        self.logger.info("Extract taxa from file {}".format(filename))
-        with open(filename, "r") as f:
-            text = f.read()
-        df = self.find_in_text(text)
-        if output_dir:
-            ann_filename = os.path.join(
-                output_dir,
-                ".".join(os.path.basename(filename).split(".")[:-1]) + ".ann",
-            )
-            df.to_csv(ann_filename, sep="\t", header=False)
-            return ann_filename
-        return df
+        if filename:
+            self.logger.info("Extract taxa from file {}".format(filename))
+            with open(filename, "r") as f:
+                text = f.read()
+            df = self.find_in_text(text)
+            if output_dir:
+                ann_filename = os.path.join(
+                    output_dir,
+                    ".".join(os.path.basename(filename).split(".")[:-1]) + ".ann",
+                )
+                df.to_csv(ann_filename, sep="\t", header=False)
+                return ann_filename
+            return df
+        return None
 
     def find_in_text(self, text):
         doc = self.nlp(text)
