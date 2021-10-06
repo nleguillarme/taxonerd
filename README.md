@@ -32,10 +32,10 @@ For GPU support, find your CUDA version using `nvcc --version` and add the versi
 
 To download the models:
 
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.1.2/en_ner_eco_md-1.0.0.tar.gz
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.1.2/en_ner_eco_biobert-1.0.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.2.0/en_ner_eco_md-1.0.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.2.0/en_ner_eco_biobert-1.0.0.tar.gz
 
-Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.1.2), there are 4 supported linkers:
+Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.2.0), there are 4 supported linkers:
 
 * gbif_backbone: Links to [GBIF Backbone Taxonomy (2019-09-06)](https://www.gbif.org/fr/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) (~9.5M names for ~3.5M taxa).
 * taxref: Links to [TAXREF (v13)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/13.0/menu) (~1.2M names for ~267k taxa).
@@ -148,7 +148,7 @@ T26	LIVB 4071 4082	brown bears
   ##### Find taxonomic entities in an input string
 
 ``` python
->>> ner.find_entities("Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivore")
+>>> ner.find_in_text("Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivore")
        offsets          text
 T0   LIVB 0 11   Brown bears
 T1  LIVB 13 25  Ursus arctos
@@ -158,6 +158,7 @@ T1  LIVB 13 25  Ursus arctos
 
 ``` python
 >>> ner.find_in_file("./test_txt/sample_text1.txt", output_dir=None)
+      offsets                         text
 T0	LIVB 4 21	pinewood nematode
 T1	LIVB 29 55	Bursaphelenchus xylophilus
 T2	LIVB 83 100	pine wilt disease
@@ -169,7 +170,8 @@ T5	LIVB 424 428	BXF1
   ##### Find taxonomic entities in all the files in the input directory, and write the results in the output directory
 
 ``` python
->>> ner.find_all_files("./test_txt", "./test_ann")
+>>> ner.find_in_corpus("./test_txt", "./test_ann")
+{'sample_text1.txt': './test_ann/sample_text1.ann', 'sample_text2.txt': './test_ann/sample_text2.ann'}
 ```
 
 ## License
