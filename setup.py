@@ -7,16 +7,28 @@ install_requires = [
     "click<7.2.0,>=7.1.1",
     "pandas>=0.24.2",
     "scispacy==0.4.0",
-    "spacy[transformers]>=3.0.5,<=3.1.3",
+    "spacy>=3.0.5,<3.1.0",
+    "spacy-transformers>=1.0.2,<1.0.5",
     "textract>=1.6.3",
 ]
 
 extras_require = {
-    "cuda102": ["spacy[cuda102,transformers]>=3.0.5,<=3.1.3"],
-    "cuda110": ["spacy[cuda110,transformers]>=3.0.5,<=3.1.3"],
-    "cuda111": ["spacy[cuda111,transformers]>=3.0.5,<=3.1.3"],
-    "cuda112": ["spacy[cuda112,transformers]>=3.0.5,<=3.1.3"],
-    # "cuda113": ["spacy[cuda113,transformers]>=3.0.5,<=3.1.3"],
+    "cuda102": [
+        "spacy[cuda102]>=3.0.5,<3.1.0",
+        "spacy-transformers[cuda102]>=1.0.2,<1.0.5",
+    ],
+    "cuda110": [
+        "spacy[cuda110]>=3.0.5,<3.1.0",
+        "spacy-transformers[cuda110]>=1.0.2,<1.0.5",
+    ],
+    "cuda111": [
+        "spacy[cuda111]>=3.0.5,<3.1.0",
+        "spacy-transformers[cuda111]>=1.0.2,<1.0.5",
+    ],
+    "cuda112": [
+        "spacy[cuda112]>=3.0.5,<3.1.0",
+        "spacy-transformers[cuda112]>=1.0.2,<1.0.5",
+    ],
 }
 
 # read the contents of your README file
