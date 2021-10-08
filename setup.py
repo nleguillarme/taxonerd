@@ -44,7 +44,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 setup(
     name="taxonerd",
-    version="v1.2.1",
+    version="v1.3.0",
     url="https://github.com/nleguillarme/taxonerd",
     license="MIT",
     author="Nicolas Le Guillarme",

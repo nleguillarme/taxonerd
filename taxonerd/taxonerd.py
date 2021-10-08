@@ -8,6 +8,7 @@ import logging
 from spacy import displacy
 import torch
 
+from scispacy.custom_sentence_segmenter import pysbd_sentencizer
 from taxonerd.abbreviation import TaxonomicAbbreviationDetector
 from taxonerd.extractor import TextExtractor
 
@@ -18,6 +19,7 @@ class TaxoNERD:
         model="en_ner_eco_md",
         with_abbrev=False,
         with_linking=None,
+        with_sentence=False,
         threshold=0.7,
         prefer_gpu=False,
         verbose=False,
@@ -39,6 +41,12 @@ class TaxoNERD:
         self.logger.info(
             "Loaded model {}-{}".format(self.nlp.meta["name"], self.nlp.meta["version"])
         )
+
+        self.with_sentence = with_sentence
+        if self.with_sentence:
+            if self.verbose:
+                logger.info(f"Add pySBDSentencizer to pipeline")
+            self.nlp.add_pipe("pysbd_sentencizer", before="ner")
 
         self.with_abbrev = with_abbrev
         if self.with_abbrev:
@@ -102,9 +110,13 @@ class TaxoNERD:
         doc = self.nlp(text)
         # displacy.serve(doc, style="ent")
         entities = []
+        sentences = None
         if len(doc.ents) > 0:
+            if self.with_sentence:
+                sentences = {sent: id for id, sent in enumerate(doc.sents)}
+
             entities = [
-                self.get_entity_dict(ent, text)
+                self.get_entity_dict(ent, text, sentences=sentences)
                 for ent in doc.ents
                 if (
                     "\n" not in text[ent.start_char : ent.end_char].strip("\n")
@@ -113,15 +125,36 @@ class TaxoNERD:
                     and ((ent not in doc._.abbreviations) if self.with_abbrev else True)
                 )
             ]
-            for ent in doc.ents:
-                if ent.label_ not in ["LIVB", "TAXON"]:
-                    raise ValueError(ent.label_)
-        if self.with_abbrev:
-            entities += (
-                self.get_abbreviated_tax_entity(text, entities, doc._.abbreviations)
-                if len(doc._.abbreviations) > 0
-                else []
-            )
+
+            # for ent in doc.ents:
+            #     if ent.label_ not in ["LIVB", "TAXON"]:
+            #         raise ValueError(ent.label_)
+        if self.with_abbrev and len(doc._.abbreviations) > 0:
+            ents = {ent["text"]: ent for ent in entities}
+            abbreviations = [
+                self.get_entity_dict(
+                    abrv,
+                    text,
+                    kb_ents=ents[abrv._.long_form.text]["entity"]
+                    if self.with_linking
+                    else None,
+                    sentences=sentences,
+                )
+                for abrv in doc._.abbreviations
+                if abrv._.long_form
+                and abrv.text != abrv._.long_form.text
+                and abrv._.long_form.text in ents
+            ]
+
+            entities += abbreviations
+
+            # entities += (
+            #     self.get_abbreviated_tax_entity(
+            #         text, entities, doc._.abbreviations, sentences
+            #     )
+            #     if len(doc._.abbreviations) > 0
+            #     else []
+            # )
 
         df = pd.DataFrame(entities)
         df = df.dropna()
@@ -129,26 +162,30 @@ class TaxoNERD:
         df = df.reset_index(drop=True)
         return df.rename("T{}".format)
 
-    def get_entity_dict(self, ent, text, kb_ents=None):
+    def get_entity_dict(self, ent, text, kb_ents=None, sentences=None):
         ent_dict = {
             "offsets": "LIVB {} {}".format(ent.start_char, ent.end_char),
             "text": text[ent.start_char : ent.end_char].replace("\n", " "),
         }
         if self.with_linking:
             ent_dict["entity"] = kb_ents if kb_ents else ent._.kb_ents
+        if self.with_sentence and sentences:
+            ent_dict["sent"] = sentences[ent.sent]
         return ent_dict
 
-    def get_abbreviated_tax_entity(self, text, entities, abbreviations):
-        ents = {ent["text"]: ent for ent in entities}
-        abbreviations = [
-            self.get_entity_dict(
-                abrv,
-                text,
-                kb_ents=ents[abrv._.long_form.text]["entity"]
-                if self.with_linking
-                else None,
-            )
-            for abrv in abbreviations
-            if abrv._.long_form and abrv._.long_form.text in ents
-        ]  # Abbreviated species name without a long form will not appear in the results
-        return abbreviations
+    # def get_abbreviated_tax_entity(self, text, entities, abbreviations, sentences=None):
+    #     ents = {ent["text"]: ent for ent in entities}
+    #     abbreviations = [
+    #         self.get_entity_dict(
+    #             abrv,
+    #             text,
+    #             kb_ents=ents[abrv._.long_form.text]["entity"]
+    #             if self.with_linking
+    #             else None,
+    #             sentences=sentences,
+    #         )
+    #         for abrv in abbreviations
+    #         if abrv._.long_form and abrv._.long_form.text in ents
+    #     ]  # Abbreviated species name without a long form will not appear in the results
+    #     print(abbreviations)
+    #     return abbreviations

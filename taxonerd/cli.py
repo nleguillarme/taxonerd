@@ -32,6 +32,13 @@ def cli():
     help="Add abbreviation detector to the pipeline",
     is_flag=True,
 )
+@click.option(
+    "--with-sentence",
+    "-s",
+    type=bool,
+    help="Add sentence segmenter to the pipeline",
+    is_flag=True,
+)
 @click.option("--link-to", "-l", type=str, help="Add entity linker to the pipeline")
 @click.option(
     "--thresh",
@@ -47,6 +54,7 @@ def ask(
     output_dir,
     filename,
     with_abbrev,
+    with_sentence,
     link_to,
     thresh,
     prefer_gpu,
@@ -70,6 +78,7 @@ def ask(
     ner = TaxoNERD(
         model=ner_model,
         with_abbrev=with_abbrev,
+        with_sentence=with_sentence,
         with_linking=link_to,
         threshold=thresh,
         prefer_gpu=prefer_gpu,
