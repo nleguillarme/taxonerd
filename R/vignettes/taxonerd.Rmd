@@ -1,6 +1,9 @@
 ---
-title: "Recognizing taxonomic entity mentions in text using TaxoNERD"
+title: "Recognizing taxonomic entity mentions in a corpus of text documents using TaxoNERD"
+author: "Nicolas Le Guillarme and Wilfried Thuiller"
 output: rmarkdown::html_vignette
+runtime: shiny
+#output: pdf_document
 vignette: >
   %\VignetteIndexEntry{taxonerd}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,6 +17,140 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+# Learning objectives
+
+This vignette is designed to:
+1. show how to install the taxonerd package for R
+2. show how to recognize taxonomic entity mentions in a corpus of PDF documents using TaxoNERD models
+
+# Install taxonerd
+
+taxonerd is an R package that provides deep neural network models for recognizing taxonomic entity mentions in the biodiversity literature. taxonerd can find scientific names, common names, abbreviated species names and user-defined abbreviations. Detected taxon mentions can be linked to entities in a reference taxonomy (e.g. NCBI Taxonomy, GBIF Backbone, TAXREF).
+
+You can install the released version of taxonerd from CRAN with:
+
+```{r eval=FALSE}
+install.packages("taxonerd")
+```
+
+The taxonerd R package wraps the TaxoNERD Python package using reticulate. So to use TaxoNERD, you have to install the Python package :
+
+```{r}
 library(taxonerd)
+install.taxonerd()
+```
+
+This will install the last release of TaxoNERD available on PyPI. If you want TaxoNERD to run on a GPU, you will have to install the package with GPU support. First, find your CUDA version :
+
+```{bash eval=FALSE}
+nvcc --version
+```
+
+TaxoNERD supports CUDA versions 10.2, 11.0, 11.1, 11.2. To install TaxoNERD for CUDA 11.2 :
+
+```{r eval=FALSE}
+install.taxonerd(cuda.version="cuda112")
+```
+
+TaxoNERD is correctly installed. Now import the Python package, and you are ready to go :
+
+```{r}
+# Import the TaxoNERD Python package
+# import.taxonerd()
+```
+
+# Example 1 : extracting taxonomic entities to index a corpus of PDF documents
+
+First, let's load the necessary packages for this example :
+
+```{r}
+library(rplos)
+library(comprehenr)
+library(data.table)
+library(dplyr)
+```
+
+In this example, we will use taxonomic entity recognition to index a corpus of PDF documents. This will allows the corpus to be searched efficiently by taxon name.
+
+Let's begin by creating a small corpus of PDF documents.
+
+```{r}
+corpusDir <- "./my_corpus"
+```
+
+```{r}
+# Get DOIs for full article in PLoS One
+res <- searchplos('biodiversity AND (habitat OR distribution OR survey) AND neotropics', c('id','publication_date','title'), fq=list('subject:ecology', 'journal_key:PLoSONE','doc_type:full'), limit = 10)
+# Download full-text articles in PDF format
+for (doi in res$data$id) {
+  pdf_url <- gsub("manuscript", "printable", full_text_urls(doi=doi))
+  destfile <- file.path(corpusDir, paste(gsub("/", "_", doi), "pdf", sep="."))
+  download.file(pdf_url, destfile)
+}
+```
+
+The corpusDir directory now contains a set of 10 documents in PDf format.
+
+The next step is to initialize the taxonomic entity recognition engine. For this, we will need a taxonomic entity recognition model. TaxoNERD provides two models : en_ner_eco_md - a smaller model designed for speed - and en_ner_eco_biobert - a more complex architecture with higher accuracy. Note that we strongly recommend running the en_ner_eco_biobert model on a GPU, as it may be prohibitively slow on CPU. Let's download and install the en_ner_eco_md model (see available versions on GitHub : https://github.com/nleguillarme/taxonerd) :
+
+```{r}
+install.model(model="en_ner_eco_md", version="1.2.1")
+```
+
+Here, we use the en_ner_eco_md model, we enable the abbreviation detector, and we ask the engine to link detected taxon mentions to a subset of the NCBI Taxonomy. Entity linking relies on a approximate nearest neighbors search and uses a minimum similarity threshold to filter out entities whose name is not similar enough to the textual mention. Here, this threshold is set to 0.85.
+
+```{r}
+# Initialize the taxonomic NER engine
+ner = init.taxonerd("en_ner_eco_md", abbrev=TRUE, link="ncbi_lite", thresh=0.85)
+```
+
+We are now ready to run the taxonomic entity recognition engine on our corpus of documents. Note that TaxoNERD can extract taxon mentions from (almost) any document (including txt, pdf, csv, xls, jpg, png, and many other formats). All the files required to perform entity linking against a given taxonomy are downloaded and cached the first time linking is enabled. This may take some time, but it should only be done once.
+
+```{r}
+list.of.dfs = find.in.corpus(ner, corpusDir)
+```
+
+The find.in.corpus function returns a list of data frames (one per document). You can also write the results of taxonomic entity recognition to a directory :
+
+```{r}
+dir.create("./my_annotations", showWarnings = FALSE)
+list.of.paths = find.in.corpus(ner, corpusDir, "./my_annotations")
+print(list.of.paths)
+```
+
+In this case, the find.in.corpus function returns a list of paths to the annotation files.
+
+We will now parse the results of taxonomic entity recognition. For each taxonomic entity detected in the corpus, we build the list of documents in which the entity is mentioned. Documents are listed in descending order of relevance (i.e. where relevance is here defined as the number of occurrences of the entity in the document).
+
+```{r}
+ents.per.doc = list()
+for (doc.name in names(list.of.dfs)) {
+  ents = list.of.dfs[[doc.name]]
+  if (dim(ents)[1] != 0) {
+    # Extract the scientific name and id of the linked entities
+    taxa.info = to_list(for (ent in ents["entity"]) c("id"=ent[[1]][[1]], "sci_name"=ent[[1]][[2]]))
+    taxa.info = rbindlist(lapply(taxa.info, as.data.frame.list))
+    # Calculate the frequency of each entity
+    ents.per.doc[[doc.name]] = as.data.frame(taxa.info%>%group_by_all%>%count)
+    ents.per.doc[[doc.name]]$doc_name = doc.name
+  }
+}
+# Aggregate results over all documents
+agg.df <- do.call(rbind, ents.per.doc)
+rownames(agg.df) <- NULL
+unames <- unique(agg.df$sci_name)
+docs.per.taxon <- lapply(unames, function(x) {
+  y = agg.df[agg.df$sci_name==x, ]
+  y = subset(y, select=-c(id, sci_name))
+  y = y[order(y$n, decreasing = TRUE),]
+  rownames(y) <- NULL
+  return(y)
+})
+names(docs.per.taxon) <- unames
+```
+
+Now that our corpus is indexed, we can look for the most relevant documents mentioning a specific taxon. For instance, we can look for all the documents mentioning *Leopardus pardalis* :
+
+```{r}
+docs.per.taxon$`Leopardus pardalis`
 ```
