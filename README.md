@@ -14,6 +14,8 @@ Le Guillarme, N., & Thuiller, W. (2021). [TaxoNERD: deep neural models for the r
 
 TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodiversity literature.
 
+:tada: TaxoNERD is now available for R enthusiasts !
+
 * You can choose between two models : en_ner_eco_md uses spaCy's standard Tok2Vec with word vectors for speed, while en_ner_eco_biobert uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
 * TaxoNERD finds scientific names, common names, abbreviated species names and user-defined abbreviations
 * TaxoNERD can link taxon mentions to entities in a reference taxonomy (NCBI Taxonomy, GBIF Backbone and TAXREF at the moment, more to come)
@@ -23,6 +25,8 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 * Available as a command-line tool and a python module
 
 ## Installation
+
+### TaxoNERD for Python
 
 Installing the package from pip will automatically install all dependencies, including pandas, spaCy, scispaCy and textract. Make sure you install this package before you install the models. Also note that this package requires Python 3.8+ and spaCy v3.0+.
 
@@ -41,6 +45,8 @@ Entity linker files are downloaded and cached the first time the linker is used.
 * taxref: Links to [TAXREF (v13)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/13.0/menu) (~1.2M names for ~267k taxa).
 * ncbi_taxonomy: Links to [The NCBI Taxonomy](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) (~3.4M names).
 * ncbi_taxonomy_lite: Links to [The NCBI Taxonomy](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) from which we removed virus names and added abreviated species name (e.g. *P. marina*) (~3.5M names). The ncbi_taxonomy_lite linker supports abbreviated species names out-of-the-box. This means that even if you do not use the abbreviation detector, abbreviated species names such as *P. marina* can be linked to the corresponding taxonomic unit *Pirellula marina* (NCBI:214).
+
+### TaxoNERD for R
 
 ## Usage
 
