@@ -1,8 +1,14 @@
 library(reticulate)
 
 Sys.setenv(TOKENIZERS_PARALLELISM="false")
-
 taxonerd <- NULL
+
+.onLoad <- function(libname, pkgname) {
+  envname = "r-taxonerd"
+  if (!reticulate::virtualenv_exists(envname = "r-taxonerd")) {
+    reticulate::virtualenv_create(envname)
+  }
+}
 
 #' Install the TaxoNERD python package.
 #'
@@ -13,13 +19,15 @@ taxonerd <- NULL
 #' @export install.taxonerd
 #' @import reticulate
 install.taxonerd <- function(version="1.3.0", cuda.version=NULL) {
+  # create a new environment 
   extras = ""
   if (!is.null(cuda.version)) {
     extras = paste("[",cuda.version,"]",sep="")
   }
-  reticulate::py_install(paste("taxonerd",extras,"==",version,sep=""), pip=TRUE)
-  taxonerd <- import.taxonerd()
-  print(taxonerd$`__version__`)
+  #reticulate::py_install(paste("taxonerd",extras,"==",version,sep=""), pip=TRUE)
+  reticulate::virtualenv_install("r-taxonerd", packages = paste("taxonerd",extras,"==",version,sep=""), ignore_installed = TRUE)
+  #taxonerd <- import.taxonerd()
+  #print(taxonerd$`__version__`)
 }
 
 #' Import the TaxoNERD python package.
@@ -27,6 +35,7 @@ install.taxonerd <- function(version="1.3.0", cuda.version=NULL) {
 #' @example import.taxonerd()
 #' @import reticulate
 import.taxonerd <- function() {
+  use_virtualenv("r-taxonerd", required = TRUE)
   import("taxonerd")
 }
 
@@ -38,8 +47,9 @@ import.taxonerd <- function() {
 #' @export install.model
 #' @import reticulate
 install.model <- function(model, version) {
-  url = sprintf("https://github.com/nleguillarme/taxonerd/releases/download/v%s/%s-1.0.0.tar.gz", version, model) 
-  reticulate::py_install(url, pip=TRUE)
+  url = sprintf("https://github.com/nleguillarme/taxonerd/releases/download/v%s/%s-1.0.0.tar.gz", version, model)
+  virtualenv_install("r-taxonerd", packages = url, ignore_installed = TRUE)
+  #reticulate::py_install(url, envname="r-taxonerd", pip=TRUE)
 }
 
 #' Initialize the taxonomic entity recognition engine.
