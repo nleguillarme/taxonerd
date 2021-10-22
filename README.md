@@ -49,7 +49,7 @@ Entity linker files are downloaded and cached the first time the linker is used.
 ### TaxoNERD for R
 
     > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.3.0/taxonerd_for_R_1.3.0.tar.gz", repos=NULL)
-    > vignette("taxonerd") # See vignette for more information on how to install TaxoNERD for R
+    > vignette("taxonerd") # See vignette for more information on how to install and use TaxoNERD for R
 
 ## Usage
 
