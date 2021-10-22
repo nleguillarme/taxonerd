@@ -14,7 +14,7 @@ Le Guillarme, N., & Thuiller, W. (2021). [TaxoNERD: deep neural models for the r
 
 TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodiversity literature.
 
-:tada: TaxoNERD is now available for R enthusiasts !
+:tada: **TaxoNERD is now available for R enthusiasts thanks to reticulate !**
 
 * You can choose between two models : en_ner_eco_md uses spaCy's standard Tok2Vec with word vectors for speed, while en_ner_eco_biobert uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
 * TaxoNERD finds scientific names, common names, abbreviated species names and user-defined abbreviations
@@ -47,6 +47,9 @@ Entity linker files are downloaded and cached the first time the linker is used.
 * ncbi_taxonomy_lite: Links to [The NCBI Taxonomy](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) from which we removed virus names and added abreviated species name (e.g. *P. marina*) (~3.5M names). The ncbi_taxonomy_lite linker supports abbreviated species names out-of-the-box. This means that even if you do not use the abbreviation detector, abbreviated species names such as *P. marina* can be linked to the corresponding taxonomic unit *Pirellula marina* (NCBI:214).
 
 ### TaxoNERD for R
+
+    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.3.0/taxonerd_for_R_1.3.0.tar.gz", repos=NULL)
+    > vignette("taxonerd")
 
 ## Usage
 
