@@ -6,6 +6,8 @@ Looking for taxon mentions in text? Ask TaxoNERD
 * [Installation](#installation)
 * [Usage](#usage)
 
+I would be happy to hear about your use of TaxoNERD : what is your use case? How did TaxoNERD help you? What could make TaxoNERD even more helpful? Please feel free to drop me an email (nicolas[dot]leguillarme[at]univ-grenoble-alpes[dot]fr) or to open an issue.
+
 ## Cite TaxoNERD
 
 Le Guillarme, N., & Thuiller, W. (2021). [TaxoNERD: deep neural models for the recognition of taxonomic entities in the ecological and evolutionary literature](https://www.biorxiv.org/content/10.1101/2021.06.08.444426v1.full). bioRxiv.
