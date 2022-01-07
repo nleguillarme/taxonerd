@@ -6,6 +6,7 @@ import warnings
 import sys
 import logging
 from spacy import displacy
+from spacy.tokens import Span
 import torch
 
 from scispacy.custom_sentence_segmenter import pysbd_sentencizer
@@ -46,6 +47,7 @@ class TaxoNERD:
         if self.with_sentence:
             if self.verbose:
                 logger.info(f"Add pySBDSentencizer to pipeline")
+            Span.set_extension("sent_id", default=None)
             self.nlp.add_pipe("pysbd_sentencizer", before="ner")
 
         self.with_abbrev = with_abbrev
@@ -60,6 +62,9 @@ class TaxoNERD:
             if self.verbose:
                 logger.info(f"Add EntityLinker {kb_name} to pipeline")
             self.create_linker(kb_name, threshold)
+
+    def print_version(self):
+        print("1.3.0 (branch doc)")
 
     def create_linker(self, kb_name, threshold):
         from taxonerd.linking.linking_utils import KnowledgeBaseFactory
@@ -107,85 +112,77 @@ class TaxoNERD:
         return None
 
     def find_in_text(self, text):
+        doc = self.ner(text)
+        return self.doc_to_df(doc)
+
+    def ner(self, text):
+        def is_valid_entity(ent, doc, text):
+            return (
+                "\n" not in text[ent.start_char : ent.end_char].strip("\n")
+                and (ent.label_ in ["LIVB", "TAXON"])
+                and (ent._.kb_ents if self.with_linking else True)
+                and ((ent not in doc._.abbreviations) if self.with_abbrev else True)
+            )
+
+        def is_valid_abbrev(abrv, ents_dict):
+            return (
+                abrv._.long_form
+                and abrv.text != abrv._.long_form.text
+                and abrv._.long_form.text in ents_dict
+            )
+
         doc = self.nlp(text)
         # displacy.serve(doc, style="ent")
-        entities = []
-        sentences = None
+
+        ents = []
         if len(doc.ents) > 0:
+            # Keep only the entities that have been linked
+            if self.with_linking:
+                ents += [ent for ent in doc.ents if is_valid_entity(ent, doc, text)]
+                doc.set_ents(ents)
+
+        if len(doc.ents) > 0:
+            # Keep only abbreviations whose long forms have been tagged as entities
+            if self.with_abbrev and len(doc._.abbreviations) > 0:
+                ents_dict = {ent.text: ent for ent in doc.ents}
+                abbreviations = [
+                    abrv
+                    for abrv in doc._.abbreviations
+                    if is_valid_abbrev(abrv, ents_dict)
+                ]
+                for abrv in abbreviations:
+                    new_ent = Span(doc, abrv.start, abrv.end, "LIVB")
+                    if self.with_linking:
+                        new_ent._.kb_ents = ents_dict[abrv._.long_form.text]._.kb_ents
+                    ents.append(new_ent)
+                doc.set_ents(ents)
+
+        if len(doc.ents) > 0:
+            # Add the sentence id as an entity attribute
             if self.with_sentence:
                 sentences = {sent: id for id, sent in enumerate(doc.sents)}
+                for ent in doc.ents:
+                    ent._.sent_id = sentences[ent.sent]
 
-            entities = [
-                self.get_entity_dict(ent, text, sentences=sentences)
-                for ent in doc.ents
-                if (
-                    "\n" not in text[ent.start_char : ent.end_char].strip("\n")
-                    and (ent.label_ in ["LIVB", "TAXON"])
-                    and (ent._.kb_ents if self.with_linking else True)
-                    and ((ent not in doc._.abbreviations) if self.with_abbrev else True)
-                )
-            ]
+        return doc
 
-            # for ent in doc.ents:
-            #     if ent.label_ not in ["LIVB", "TAXON"]:
-            #         raise ValueError(ent.label_)
-        if self.with_abbrev and len(doc._.abbreviations) > 0:
-            ents = {ent["text"]: ent for ent in entities}
-            abbreviations = [
-                self.get_entity_dict(
-                    abrv,
-                    text,
-                    kb_ents=ents[abrv._.long_form.text]["entity"]
-                    if self.with_linking
-                    else None,
-                    sentences=sentences,
-                )
-                for abrv in doc._.abbreviations
-                if abrv._.long_form
-                and abrv.text != abrv._.long_form.text
-                and abrv._.long_form.text in ents
-            ]
+    def doc_to_df(self, doc):
+        def get_entity_dict(ent):
+            ent_dict = {
+                "offsets": "LIVB {} {}".format(ent.start_char, ent.end_char),
+                "text": ent.text.replace("\n", " "),
+            }
+            if self.with_linking:
+                ent_dict["entity"] = ent._.kb_ents
+            if self.with_sentence:
+                ent_dict["sent"] = ent._.sent_id
+            return ent_dict
 
-            entities += abbreviations
-
-            # entities += (
-            #     self.get_abbreviated_tax_entity(
-            #         text, entities, doc._.abbreviations, sentences
-            #     )
-            #     if len(doc._.abbreviations) > 0
-            #     else []
-            # )
-
+        entities = []
+        if len(doc.ents) > 0:
+            entities = [get_entity_dict(ent) for ent in doc.ents]
         df = pd.DataFrame(entities)
         df = df.dropna()
         df = df.loc[df.astype(str).drop_duplicates().index]
         df = df.reset_index(drop=True)
         return df.rename("T{}".format)
-
-    def get_entity_dict(self, ent, text, kb_ents=None, sentences=None):
-        ent_dict = {
-            "offsets": "LIVB {} {}".format(ent.start_char, ent.end_char),
-            "text": text[ent.start_char : ent.end_char].replace("\n", " "),
-        }
-        if self.with_linking:
-            ent_dict["entity"] = kb_ents if kb_ents else ent._.kb_ents
-        if self.with_sentence and sentences:
-            ent_dict["sent"] = sentences[ent.sent]
-        return ent_dict
-
-    # def get_abbreviated_tax_entity(self, text, entities, abbreviations, sentences=None):
-    #     ents = {ent["text"]: ent for ent in entities}
-    #     abbreviations = [
-    #         self.get_entity_dict(
-    #             abrv,
-    #             text,
-    #             kb_ents=ents[abrv._.long_form.text]["entity"]
-    #             if self.with_linking
-    #             else None,
-    #             sentences=sentences,
-    #         )
-    #         for abrv in abbreviations
-    #         if abrv._.long_form and abrv._.long_form.text in ents
-    #     ]  # Abbreviated species name without a long form will not appear in the results
-    #     print(abbreviations)
-    #     return abbreviations
