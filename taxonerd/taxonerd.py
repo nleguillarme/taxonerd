@@ -63,9 +63,6 @@ class TaxoNERD:
                 logger.info(f"Add EntityLinker {kb_name} to pipeline")
             self.create_linker(kb_name, threshold)
 
-    def print_version(self):
-        print("1.3.0 (branch doc)")
-
     def create_linker(self, kb_name, threshold):
         from taxonerd.linking.linking_utils import KnowledgeBaseFactory
         from taxonerd.linking.candidate_generation import CandidateGenerator

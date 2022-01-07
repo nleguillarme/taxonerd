@@ -26,11 +26,13 @@ This vignette is designed to:
 
 taxonerd is an R package that provides deep neural network models for recognizing taxonomic entity mentions in the biodiversity literature. taxonerd can find scientific names, common names, abbreviated species names and user-defined abbreviations. Detected taxon mentions can be linked to entities in a reference taxonomy (e.g. NCBI Taxonomy, GBIF Backbone, TAXREF).
 
-You can install the released version of taxonerd from CRAN with:
+You can install the released version of taxonerd from GitHub with:
 
 ```{r eval=FALSE}
-install.packages("taxonerd")
+install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.3.0/taxonerd_for_R_1.3.0.tar.gz", repos=NULL)
 ```
+
+Check for available releases on the project's GitHub page : https://github.com/nleguillarme/taxonerd
 
 The taxonerd R package wraps the TaxoNERD Python package using reticulate. So to use TaxoNERD, you have to install the Python package :
 
