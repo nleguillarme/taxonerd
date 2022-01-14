@@ -6,15 +6,17 @@ Looking for taxon mentions in text? Ask TaxoNERD
 * [Installation](#installation)
 * [Usage](#usage)
 
+I would be happy to hear about your use of TaxoNERD : what is your use case? How did TaxoNERD help you? What could make TaxoNERD even more helpful? Please feel free to drop me an email (nicolas[dot]leguillarme[at]univ-grenoble-alpes[dot]fr) or to open an issue.
+
 ## Cite TaxoNERD
 
-Le Guillarme, N., & Thuiller, W. (2021). [TaxoNERD: deep neural models for the recognition of taxonomic entities in the ecological and evolutionary literature](https://www.biorxiv.org/content/10.1101/2021.06.08.444426v1.full). bioRxiv.
+Le Guillarme, N., & Thuiller, W. (2021). [TaxoNERD: deep neural models for the recognition of taxonomic entities in the ecological and evolutionary literature](https://doi.org/10.1111/2041-210X.13778). In *Methods in Ecology and Evolution*. British Ecological Society.
 
 ## Features
 
 TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodiversity literature.
 
-:tada: TaxoNERD is now available for R enthusiasts !
+:tada: **TaxoNERD is now available for R enthusiasts thanks to reticulate !**
 
 * You can choose between two models : en_ner_eco_md uses spaCy's standard Tok2Vec with word vectors for speed, while en_ner_eco_biobert uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
 * TaxoNERD finds scientific names, common names, abbreviated species names and user-defined abbreviations
@@ -47,6 +49,9 @@ Entity linker files are downloaded and cached the first time the linker is used.
 * ncbi_taxonomy_lite: Links to [The NCBI Taxonomy](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) from which we removed virus names and added abreviated species name (e.g. *P. marina*) (~3.5M names). The ncbi_taxonomy_lite linker supports abbreviated species names out-of-the-box. This means that even if you do not use the abbreviation detector, abbreviated species names such as *P. marina* can be linked to the corresponding taxonomic unit *Pirellula marina* (NCBI:214).
 
 ### TaxoNERD for R
+
+    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.3.0/taxonerd_for_R_1.3.0.tar.gz", repos=NULL)
+    > vignette("taxonerd") # See vignette for more information on how to install and use TaxoNERD for R
 
 ## Usage
 
