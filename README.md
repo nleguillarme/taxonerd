@@ -10,7 +10,7 @@ I would be happy to hear about your use of TaxoNERD : what is your use case? How
 
 ## Cite TaxoNERD
 
-Le Guillarme, N., & Thuiller, W. (2021). [TaxoNERD: deep neural models for the recognition of taxonomic entities in the ecological and evolutionary literature](https://doi.org/10.1111/2041-210X.13778). In *Methods in Ecology and Evolution*. British Ecological Society.
+Le Guillarme, N., & Thuiller, W. (2022). [TaxoNERD: deep neural models for the recognition of taxonomic entities in the ecological and evolutionary literature](https://doi.org/10.1111/2041-210X.13778). Methods in Ecology and Evolution, 13(3), 625-641.
 
 ## Features
 
