@@ -46,21 +46,22 @@ class TaxoNERD:
         self.with_sentence = with_sentence
         if self.with_sentence:
             if self.verbose:
-                logger.info(f"Add pySBDSentencizer to pipeline")
-            Span.set_extension("sent_id", default=None)
+                self.logger.info(f"Add pySBDSentencizer to pipeline")
+                if not Span.has_extension("sent_id"):
+                    Span.set_extension("sent_id", default=None)
             self.nlp.add_pipe("pysbd_sentencizer", before="ner")
 
         self.with_abbrev = with_abbrev
         if self.with_abbrev:
             if self.verbose:
-                logger.info(f"Add TaxonomicAbbreviationDetector to pipeline")
+                self.logger.info(f"Add TaxonomicAbbreviationDetector to pipeline")
             self.nlp.add_pipe("taxonomic_abbreviation_detector")
 
         self.with_linking = with_linking != None
         if self.with_linking:
             kb_name = with_linking if with_linking != "" else "gbif_backbone"
             if self.verbose:
-                logger.info(f"Add EntityLinker {kb_name} to pipeline")
+                self.logger.info(f"Add EntityLinker {kb_name} to pipeline")
             self.create_linker(kb_name, threshold)
 
     def create_linker(self, kb_name, threshold):
@@ -139,6 +140,7 @@ class TaxoNERD:
                 doc.set_ents(ents)
 
         if len(doc.ents) > 0:
+            ents = [ent for ent in doc.ents]
             # Keep only abbreviations whose long forms have been tagged as entities
             if self.with_abbrev and len(doc._.abbreviations) > 0:
                 ents_dict = {ent.text: ent for ent in doc.ents}
@@ -147,11 +149,50 @@ class TaxoNERD:
                     for abrv in doc._.abbreviations
                     if is_valid_abbrev(abrv, ents_dict)
                 ]
-                for abrv in abbreviations:
-                    new_ent = Span(doc, abrv.start, abrv.end, "LIVB")
-                    if self.with_linking:
-                        new_ent._.kb_ents = ents_dict[abrv._.long_form.text]._.kb_ents
-                    ents.append(new_ent)
+
+                # scispacy's AbbreviationDetector may return overlapping spans -> keep the longest
+                keep_abbrev = [True] * len(abbreviations)
+                for i in range(len(abbreviations)):
+                    if keep_abbrev[i]:
+                        for j in range(i + 1, len(abbreviations)):
+                            abrv_i = abbreviations[i]
+                            abrv_j = abbreviations[j]
+                            if not (
+                                abrv_i.start > abrv_j.end or abrv_i.end < abrv_j.start
+                            ):  # Overlapping
+                                if len(abrv_i) <= len(abrv_j):
+                                    keep_abbrev[i] = False
+                                    self.logger.debug(
+                                        f"Remove abbreviation ({abrv_i}, {abrv_i.start}, {abrv_i.end}) included in ({abrv_j}, {abrv_j.start}, {abrv_j.end})"
+                                    )
+                                else:
+                                    keep_abbrev[j] = False
+                                    self.logger.debug(
+                                        f"Remove abbreviation ({abrv_j}, {abrv_j.start}, {abrv_j.end}) included in ({abrv_i}, {abrv_i.start}, {abrv_i.end})"
+                                    )
+
+                # Abbreviations may overlap with entities -> remove them
+                for i in range(len(abbreviations)):
+                    if keep_abbrev[i]:
+                        overlapping_span = False
+                        abrv = abbreviations[i]
+                        for ent in doc.ents:
+                            if not (
+                                ent.start > abrv.end or ent.end < abrv.start
+                            ):  # Overlapping
+                                self.logger.debug(
+                                    f"Remove abbreviation ({abrv}, {abrv.start}, {abrv.end}) included in ({ent}, {ent.start}, {ent.end})"
+                                )
+                                overlapping_span = True
+                                break
+                        if not overlapping_span:
+                            new_ent = Span(doc, abrv.start, abrv.end, "LIVB")
+                            if self.with_linking:
+                                new_ent._.kb_ents = ents_dict[
+                                    abrv._.long_form.text
+                                ]._.kb_ents
+                            ents.append(new_ent)
+
                 doc.set_ents(ents)
 
         if len(doc.ents) > 0:
