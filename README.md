@@ -10,7 +10,7 @@ I would be happy to hear about your use of TaxoNERD : what is your use case? How
 
 ## Cite TaxoNERD
 
-Le Guillarme, N., & Thuiller, W. (2021). [TaxoNERD: deep neural models for the recognition of taxonomic entities in the ecological and evolutionary literature](https://doi.org/10.1111/2041-210X.13778). In *Methods in Ecology and Evolution*. British Ecological Society.
+Le Guillarme, N., & Thuiller, W. (2022). [TaxoNERD: deep neural models for the recognition of taxonomic entities in the ecological and evolutionary literature](https://doi.org/10.1111/2041-210X.13778). Methods in Ecology and Evolution, 13(3), 625-641.
 
 ## Features
 
@@ -41,7 +41,7 @@ To download the models:
     $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.3.0/en_ner_eco_md-1.0.0.tar.gz
     $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.3.0/en_ner_eco_biobert-1.0.0.tar.gz
 
-Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.3.0), there are 4 supported linkers:
+Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.3.2), there are 4 supported linkers:
 
 * gbif_backbone: Links to [GBIF Backbone Taxonomy (2019-09-06)](https://www.gbif.org/fr/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) (~9.5M names for ~3.5M taxa).
 * taxref: Links to [TAXREF (v13)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/13.0/menu) (~1.2M names for ~267k taxa).
@@ -50,7 +50,7 @@ Entity linker files are downloaded and cached the first time the linker is used.
 
 ### TaxoNERD for R
 
-    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.3.0/taxonerd_for_R_1.3.0.tar.gz", repos=NULL)
+    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.3.2/taxonerd_for_R_1.3.2.tar.gz", repos=NULL)
     > vignette("taxonerd") # See vignette for more information on how to install and use TaxoNERD for R
 
 ## Usage
