@@ -25,9 +25,22 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 * TaxoNERD can link taxon mentions to entities in a reference taxonomy (NCBI Taxonomy, GBIF Backbone and TAXREF at the moment, more to come).
 * TaxoNERD is fast (once the model is loaded), and can run on CPU or GPU.
 * Entity linking does not need an internet connection, but may require a lot of RAM depending on the size of the taxonomy (e.g. GBIF Backbone -> ~12.5Gb).
-* Thanks to [textract](https://textract.readthedocs.io/en/stable/), **TaxoNERD can extract taxon mentions from (almost) any document** (including txt, pdf, csv, xls, jpg, png, and many other formats).
+* Thanks to [textract](https://textract.readthedocs.io/en/stable/), **TaxoNERD can extract taxon mentions from (almost) any document** (including txt, pdf, csv, xls, jpg, png, and many other formats). With TaxoNERD, the detection of taxonomic entities in a JPG file is as simple as that:
 
-<img align="right" src="doc/subpagelist.png">
+<img width="50%" align="left" src="tests/test_data/test_jpg/test.jpg">
+
+
+``` console
+taxonerd ask -f ./tests/test_data/test_jpg/test.jpg 
+T0	LIVB 180 192	Harbour seal
+T1	LIVB 194 208	Phoca vitulina
+T2	LIVB 361 375	Pacific salmon
+T3	LIVB 377 394	Oncorhynchus spp.
+T4	LIVB 455 467	harbour seal
+T5	LIVB 793 805	harbour seal
+T6	LIVB 1137 1148	cephalopods
+```
+
 
 ## Models
 
