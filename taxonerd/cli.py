@@ -20,7 +20,10 @@ def cli():
 #     # default="en_ner_eco_md",
 # )
 @click.option(
-    "--focus-on", type=str, help="Focus on either speed or accuracy", default="speed"
+    "--focus-on",
+    type=str,
+    help="Accepted values are ['speed', 'accuracy']. Switch between TaxoNERD's models (en_core_eco_md for speed [default], en_core_eco_biobert for accuracy)",
+    default="speed",
 )
 @click.option("--input-dir", "-i", type=str, help="Input directory")
 @click.option("--output-dir", "-o", type=str, help="Output directory")
@@ -43,7 +46,7 @@ def cli():
 @click.option(
     "--thresh",
     "-t",
-    help="Similarity threshold for entity candidates (default = 0.7)",
+    help="Similarity threshold for entity candidates [default = 0.7]",
     default=0.7,
 )
 @click.option("--prefer-gpu", type=bool, help="Use GPU if available", is_flag=True)
@@ -68,23 +71,31 @@ def ask(
         logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
     ner_model = (
-        "en_ner_eco_biobert"
+        "en_core_eco_biobert"
         if (focus_on and focus_on == "accuracy")
-        else "en_ner_eco_md"
+        else "en_core_eco_md"
     )
 
     prefer_gpu = prefer_gpu if prefer_gpu else False  # (focus_on == "accuracy")
 
     ner = TaxoNERD(
-        model=ner_model,
-        with_abbrev=with_abbrev,
-        with_sentence=with_sentence,
-        with_linking=link_to,
-        threshold=thresh,
+        # model=ner_model,
+        # with_abbrev=with_abbrev,
+        # with_sentence=with_sentence,
+        # with_linking=link_to,
+        # threshold=thresh,
         prefer_gpu=prefer_gpu,
+        # full_pipeline=False,
         verbose=verbose,
         logger=logger,
     )
+
+    exclude = ["tagger", "attribute_ruler", "lemmatizer", "parser"]
+    if not with_abbrev:
+        exclude.append("taxo_abbrev_detector")
+    if not with_sentence:
+        exclude.append("pysbd_sentencizer")
+    ner.load(ner_model, exclude=exclude, linker=link_to, threshold=thresh)
 
     if output_dir:
         if not os.path.exists(output_dir):

@@ -15,10 +15,10 @@ taxonerd <- NULL
 #' @param version The package version. Default is the last release.
 #' @param cuda.version Your CUDA version. Default = NULL.
 #' @example \dontrun{install.taxonerd()}
-#' @example \dontrun{install.taxonerd(version="1.2.1", cuda.version="cuda112")}
+#' @example \dontrun{install.taxonerd(version="1.3.3", cuda.version="cuda112")}
 #' @export install.taxonerd
 #' @import reticulate
-install.taxonerd <- function(version="1.3.0", cuda.version=NULL) {
+install.taxonerd <- function(version="1.3.3", cuda.version=NULL) {
   # create a new environment 
   extras = ""
   if (!is.null(cuda.version)) {
@@ -46,7 +46,7 @@ import.taxonerd <- function() {
 #' @example \dontrun{install.model("en_ner_eco_md", "1.3.0")}
 #' @export install.model
 #' @import reticulate
-install.model <- function(model, version) {
+install.model <- function(model, version="1.3.0") {
   url = sprintf("https://github.com/nleguillarme/taxonerd/releases/download/v%s/%s-1.0.0.tar.gz", version, model)
   virtualenv_install("r-taxonerd", packages = url, ignore_installed = TRUE)
   #reticulate::py_install(url, envname="r-taxonerd", pip=TRUE)

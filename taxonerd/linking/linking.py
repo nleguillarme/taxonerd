@@ -4,7 +4,7 @@ from spacy.language import Language
 from taxonerd.linking.candidate_generation import CandidateGenerator
 
 
-@Language.factory("taxonerd_linker")
+@Language.factory("taxo_linker")
 class EntityLinker:
     """
     A spacy pipeline component which identifies entities in text which appear
@@ -96,26 +96,16 @@ class EntityLinker:
 
     def __call__(self, doc: Doc) -> Doc:
         mentions = doc.ents
-        # mentions = []
-
         mention_strings = []
 
         if self.resolve_abbreviations and Doc.has_extension("abbreviations"):
-
-            for ent in doc.ents:
-                # TODO: This is possibly sub-optimal - we might
-                # prefer to look up both the long and short forms.
-                if ent._.long_form is not None:
-                    mention_strings.append(ent._.long_form.text)
-                    # mentions.append(ent._.long_form)
-                else:
-                    mention_strings.append(ent.text)
-                    # mentions.append(ent)
+            # TODO: This is possibly sub-optimal - we might
+            # prefer to look up both the long and short forms.
+            mention_strings = [
+                ent._.long_form.text for ent in doc.ents if ent._.long_form is not None
+            ]
         else:
-            mention_strings = [x.text for x in mentions]
-            # mentions = doc.ents
-
-        # mention_strings = [x.text for x in mentions]
+            mention_strings = [ent.text for ent in doc.ents]
         unique_mention_strings = set(mention_strings)
 
         if len(unique_mention_strings) > 0:
@@ -156,11 +146,11 @@ class EntityLinker:
                         mention._.kb_ents = kb_ents_per_mention_string[
                             mention._.long_form.text
                         ]
-                        continue
-                mention._.kb_ents = kb_ents_per_mention_string[mention.text]
+                else:
+                    mention._.kb_ents = kb_ents_per_mention_string[mention.text]
                 if mention._.kb_ents:
                     new_ents.append(mention)
 
-            doc.ents = new_ents  # Remove unlinked entities (fix #3)
+            doc.set_ents(new_ents)  # Remove unlinked entities (fix #3)
 
         return doc

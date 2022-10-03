@@ -3,6 +3,7 @@
 Looking for taxon mentions in text? Ask TaxoNERD
 
 * [Features](#features)
+* [Models](#models)
 * [Installation](#installation)
 * [Usage](#usage)
 
@@ -18,57 +19,76 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 
 :tada: **TaxoNERD is now available for R enthusiasts thanks to reticulate !**
 
-* You can choose between two models : en_ner_eco_md uses spaCy's standard Tok2Vec with word vectors for speed, while en_ner_eco_biobert uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
-* TaxoNERD finds scientific names, common names, abbreviated species names and user-defined abbreviations
-* TaxoNERD can link taxon mentions to entities in a reference taxonomy (NCBI Taxonomy, GBIF Backbone and TAXREF at the moment, more to come)
-* TaxoNERD is fast (once the model is loaded), and can run on CPU or GPU
-* Entity linking does not need an internet connection, but may require a lot of RAM depending on the size of the taxonomy (e.g. GBIF Backbone -> ~12.5Gb)
-* Thanks to [textract](https://textract.readthedocs.io/en/stable/), TaxoNERD can extract taxon mentions from (almost) any document (including txt, pdf, csv, xls, jpg, png, and many other formats)
-* Available as a command-line tool and a python module
+* TaxoNERD is available as a command-line tool, a Python module, a spaCy pipeline, and a R package.
+* TaxoNERD provides two models : en_core_eco_md uses spaCy's standard Tok2Vec layer with word vectors for speed, while en_core_eco_biobert uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
+* TaxoNERD finds scientific names, common names, abbreviated species names and user-defined abbreviations.
+* TaxoNERD can link taxon mentions to entities in a reference taxonomy (NCBI Taxonomy, GBIF Backbone and TAXREF at the moment, more to come).
+* TaxoNERD is fast (once the model is loaded), and can run on CPU or GPU.
+* Entity linking does not need an internet connection, but may require a lot of RAM depending on the size of the taxonomy (e.g. GBIF Backbone -> ~12.5Gb).
+* Thanks to [textract](https://textract.readthedocs.io/en/stable/), **TaxoNERD can extract taxon mentions from (almost) any document** (including txt, pdf, csv, xls, jpg, png, and many other formats).
+
+<img align="right" src="doc/subpagelist.png">
+
+## Models
+
+| Model               |      Description      |  Install URL |
+|---------------------|:-------------:|------:|
+| en_core_eco_md      | A full spaCy pipeline for ecological data with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)). | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/en_core_eco_md-1.0.2.tar.gz) |
+| en_core_eco_biobert | A full spaCy pipeline for ecological data with dmis-lab/biobert-v1.1 as the transformer model.                                       | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/en_core_eco_biobert-1.0.2.tar.gz) |
 
 ## Installation
 
 ### TaxoNERD for Python
 
-Installing the package from pip will automatically install all dependencies, including pandas, spaCy, scispaCy and textract. Make sure you install this package before you install the models. Also note that this package requires Python 3.8+ and spaCy v3.0+.
+Installing the package from pip will automatically install all dependencies, including pandas, spaCy, scispaCy and textract. Make sure you install this package before you install the models. Also note that this package requires Python 3.8+ and spaCy v3.4+.
 
     $ pip install taxonerd
 
-For GPU support, find your CUDA version using `nvcc --version` and add the version in brackets, e.g. `pip install taxonerd[cuda102]` for CUDA10.2 or `pip install taxonerd[cuda110]` for CUDA11.0. Supported CUDA versions are 10.2, 11.0, 11.1, 11.2.
+For GPU support, find your CUDA version using `nvcc --version` and add the version in brackets, e.g. `pip install taxonerd[cuda113]` for CUDA 11.3. See [setup.cfg](setup.cfg) for supported CUDA versions.
 
 To download the models:
 
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.3.0/en_ner_eco_md-1.0.0.tar.gz
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.3.0/en_ner_eco_biobert-1.0.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/en_core_eco_md-1.0.2.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/en_core_eco_biobert-1.0.2.tar.gz
 
-Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.3.3), there are 4 supported linkers:
+Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.4.0), there are 3 supported linkers:
 
 * gbif_backbone: Links to [GBIF Backbone Taxonomy (2019-09-06)](https://www.gbif.org/fr/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) (~9.5M names for ~3.5M taxa).
 * taxref: Links to [TAXREF (v13)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/13.0/menu) (~1.2M names for ~267k taxa).
 * ncbi_taxonomy: Links to [The NCBI Taxonomy](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) (~3.4M names).
-* ncbi_taxonomy_lite: Links to [The NCBI Taxonomy](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) from which we removed virus names and added abreviated species name (e.g. *P. marina*) (~3.5M names). The ncbi_taxonomy_lite linker supports abbreviated species names out-of-the-box. This means that even if you do not use the abbreviation detector, abbreviated species names such as *P. marina* can be linked to the corresponding taxonomic unit *Pirellula marina* (NCBI:214).
+<!-- * ncbi_taxonomy_lite: Links to [The NCBI Taxonomy](https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/) from which we removed virus names and added abreviated species name (e.g. *P. marina*) (~3.5M names). The ncbi_taxonomy_lite linker supports abbreviated species names out-of-the-box. This means that even if you do not use the abbreviation detector, abbreviated species names such as *P. marina* can be linked to the corresponding taxonomic unit *Pirellula marina* (NCBI:214). -->
 
 ### TaxoNERD for R
 
-    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.3.3/taxonerd_for_R_1.3.3.tar.gz", repos=NULL)
+    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/taxonerd_for_R_1.4.0.tar.gz", repos=NULL)
     > vignette("taxonerd") # See vignette for more information on how to install and use TaxoNERD for R
 
 ## Usage
 
+TaxoNERD can be used as:
+* [a command-line tool](#use-as-command-line-tool)
+* [a Python module](#use-as-python-module)
+* [a spaCy pipeline](#use-as-spacy-pipeline)
+
 ### Use as command-line tool
 
-```
+``` console
+$ taxonerd ask --help
 Usage: taxonerd ask [OPTIONS] [INPUT_TEXT]
 
 Options:
-  --focus-on TEXT        Focus on either speed or accuracy
+  --focus-on TEXT        Accepted values are ['speed', 'accuracy']. Switch
+                         between TaxoNERD's models (en_core_eco_md for speed
+                         [default], en_core_eco_biobert for accuracy)
+
   -i, --input-dir TEXT   Input directory
   -o, --output-dir TEXT  Output directory
   -f, --filename TEXT    Input text file
   -a, --with-abbrev      Add abbreviation detector to the pipeline
   -s, --with-sentence    Add sentence segmenter to the pipeline
   -l, --link-to TEXT     Add entity linker to the pipeline
-  -t, --thresh FLOAT     Similarity threshold for entity candidates (default = 0.7)
+  -t, --thresh FLOAT     Similarity threshold for entity candidates [default =
+                         0.7]
 
   --prefer-gpu           Use GPU if available
   -v, --verbose          Verbose mode
@@ -99,27 +119,26 @@ T0	LIVB 13 25	Ursus arctos	[('GBIF:2433433', 'Ursus arctos', 1.0)]
   ##### Taxonomic NER from a text file (with abbreviation detection)
 
 ``` console
-$ taxonerd ask --focus-on accuracy --with-abbrev -f test_txt/sample_text1.txt
+$ taxonerd ask --focus-on accuracy --with-abbrev -f ./tests/test_data/test_txt/test1.txt
 T0	LIVB 4 21	pinewood nematode
-T1	LIVB 29 55	Bursaphelenchus xylophilus
-T2	LIVB 83 100	pine wilt disease
-T3	LIVB 180 188	Serratia
-T4	LIVB 326 348	Serratia grimesii BXF1
-T5	LIVB 424 428	BXF1
-T6	LIVB 23 26	PWN
-T7	LIVB 241 244	PWN
-T8	LIVB 371 374	PWN
-T9	LIVB 102 105	PWD
-T10	LIVB 313 316	PWD
+T1	LIVB 23 26	PWN
+T2	LIVB 29 55	Bursaphelenchus xylophilus
+T3	LIVB 57 70	B. xylophilus
+T4	LIVB 99 108	pine wilt
+T5	LIVB 196 204	Serratia
+T6	LIVB 257 260	PWN
+T7	LIVB 342 364	Serratia grimesii BXF1
+T8	LIVB 387 390	PWN
+T9	LIVB 440 444	BXF1
 ```
 
   ##### Taxonomic NER from a directory containing text files, with results written in the output directory
 
 ``` console
-$ taxonerd ask --focus-on accuracy -i test_txt -o test_ann
+$ taxonerd ask --focus-on accuracy -i ./tests/test_data/test_txt -o test_ann
 $ ls test_ann/
-sample_text1.ann  sample_text2.ann
-$ cat test_ann/sample_text2.ann
+test1.ann  test2.ann
+$ cat test_ann/test2.ann
 T0	LIVB 700 711	Brown bears
 T1	LIVB 713 725	Ursus arctos
 T2	LIVB 1062 1073	brown bears
@@ -129,14 +148,14 @@ T5	LIVB 1555 1565	brown bear
 T6	LIVB 1782 1793	brown bears
 T7	LIVB 1863 1874	brown bears
 T8	LIVB 1958 1969	brown bears
-T9	LIVB 2026 2037	brown bears
-T10	LIVB 2219 2230	brown bears
-T11	LIVB 2392 2401	Sika deer
-T12	LIVB 2403 2416	Cervus nippon
-T13	LIVB 2555 2559	deer
-T14	LIVB 2594 2604	brown bear
-T15	LIVB 2798 2808	brown bear
-T16	LIVB 3135 3141	salmon
+T9	LIVB 1974 1980	salmon
+T10	LIVB 2026 2037	brown bears
+T11	LIVB 2219 2230	brown bears
+T12	LIVB 2392 2401	Sika deer
+T13	LIVB 2403 2416	Cervus nippon
+T14	LIVB 2555 2559	deer
+T15	LIVB 2594 2604	brown bear
+T16	LIVB 2798 2808	brown bear
 T17	LIVB 3146 3150	deer
 T18	LIVB 3188 3199	chum salmon
 T19	LIVB 3201 3218	Oncorhynchus keta
@@ -153,37 +172,60 @@ T26	LIVB 4071 4082	brown bears
 
 ``` python
 >>> from taxonerd import TaxoNERD
->>> ner = TaxoNERD(model="en_ner_eco_biobert", prefer_gpu=False, with_abbrev=False) # Add with_linking="gbif_backbone" or with_linking="taxref" to activate entity linking
+>>> taxonerd = TaxoNERD(prefer_gpu=False)
+>>> nlp = taxonerd.load(model="en_core_eco_md", exclude=[], linker="taxref", threshold=0.7)
+>>> nlp.pipe_names
+['tok2vec', 'tagger', 'attribute_ruler', 'lemmatizer', 'pysbd_sentencizer', 'parser', 'ner', 'taxo_abbrev_detector', 'taxref_linker']
 ```
+
+**N.B.** By default, all components are included in the pipeline. Use the ``exclude`` argument to specify the components to exclude. Excluded components won’t be loaded. This may speed up the detection process. The minimal pipeline for taxonomic NER is ``['tok2vec', 'ner']``.
+
 #### Examples
 
   ##### Find taxonomic entities in an input string
 
 ``` python
->>> ner.find_in_text("Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivore")
-       offsets          text
-T0   LIVB 0 11   Brown bears
-T1  LIVB 13 25  Ursus arctos
+>>> taxonerd.find_in_text("Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivore")
+      offsets           text                               entity  sent
+T0  LIVB 13 25  Ursus arctos  [(TAXREF:60826, Ursus arctos, 1.0)]     0
 ```
 
   ##### Find taxonomic entities in an input file
 
 ``` python
->>> ner.find_in_file("./test_txt/sample_text1.txt", output_dir=None)
-      offsets                         text
-T0	LIVB 4 21	pinewood nematode
-T1	LIVB 29 55	Bursaphelenchus xylophilus
-T2	LIVB 83 100	pine wilt disease
-T3	LIVB 180 188	Serratia
-T4	LIVB 326 348	Serratia grimesii BXF1
-T5	LIVB 424 428	BXF1
+>>> taxonerd.find_in_file("./tests/test_data/test_txt/test2.txt", output_dir=None)
+            offsets               text                                             entity  sent
+T0     LIVB 713 725       Ursus arctos                [(TAXREF:60826, Ursus arctos, 1.0)]     4
+T1   LIVB 1974 1980             salmon      [(TAXREF:730671, Salmonia, 0.85158771276474)]    12
+T2   LIVB 2392 2401          Sika deer                   [(TAXREF:61025, Sika Deer, 1.0)]    14
+T3   LIVB 2403 2416      Cervus nippon               [(TAXREF:61025, Cervus nippon, 1.0)]    14
+T4   LIVB 3135 3141             salmon      [(TAXREF:730671, Salmonia, 0.85158771276474)]    18
+T5   LIVB 3146 3150               deer                       [(TAXREF:186210, deer, 1.0)]    18
+T6   LIVB 3188 3199        chum salmon    [(TAXREF:730671, Salmonia, 0.7018352746963501)]    19
+T7   LIVB 3201 3218  Oncorhynchus keta  [(TAXREF:195439, Oncorhynchus, 0.8319146037101...    19
+T8   LIVB 3280 3289          Sika deer                   [(TAXREF:61025, Sika Deer, 1.0)]    19
+T9   LIVB 3350 3361        pink salmon                 [(TAXREF:67798, Pink Salmon, 1.0)]    20
+T10  LIVB 3381 3392        chum salmon    [(TAXREF:730671, Salmonia, 0.7018352746963501)]    20
+T11  LIVB 3481 3485               deer                       [(TAXREF:186210, deer, 1.0)]    20
 ```
 
   ##### Find taxonomic entities in all the files in the input directory, and write the results in the output directory
 
 ``` python
->>> ner.find_in_corpus("./test_txt", "./test_ann")
-{'sample_text1.txt': './test_ann/sample_text1.ann', 'sample_text2.txt': './test_ann/sample_text2.ann'}
+>>> taxonerd.find_in_corpus("./tests/test_data/test_txt", "./test_ann")
+{'test1.txt': './test_ann/test1.ann', 'test2.txt': './test_ann/test2.ann'}
+```
+
+### Use as spaCy pipeline
+``` python
+>>> from taxonerd import TaxoNERD
+>>> taxonerd = TaxoNERD(prefer_gpu=True)
+>>> nlp = taxonerd.load(model="en_core_eco_biobert")
+>>> doc = nlp("Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivore")
+>>> doc.ents
+(Brown bears, Ursus arctos)
+>>> [tok.lemma_ for tok in doc]
+['Brown', 'bear', '(', 'ursus', 'arcto', ')', ',', 'which', 'be', 'widely', 'distribute', 'throughout', 'the', 'northern', 'hemisphere', ',', 'be', 'recognise', 'as', 'opportunistic', 'omnivore']
 ```
 
 ## License
