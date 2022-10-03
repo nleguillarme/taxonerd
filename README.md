@@ -31,7 +31,7 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 
 
 ``` console
-taxonerd ask -f ./tests/test_data/test_jpg/test.jpg 
+taxonerd ask --focus-on accuracy -f ./tests/test_data/test_jpg/test.jpg
 T0	LIVB 180 192	Harbour seal
 T1	LIVB 194 208	Phoca vitulina
 T2	LIVB 361 375	Pacific salmon
