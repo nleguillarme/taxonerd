@@ -6,6 +6,7 @@ Looking for taxon mentions in text? Ask TaxoNERD
 * [Models](#models)
 * [Installation](#installation)
 * [Usage](#usage)
+* [Extensions](#extensions)
 
 I would be happy to hear about your use of TaxoNERD : what is your use case? How did TaxoNERD help you? What could make TaxoNERD even more helpful? Please feel free to drop me an email (nicolas[dot]leguillarme[at]univ-grenoble-alpes[dot]fr) or to open an issue.
 
@@ -240,6 +241,10 @@ T11  LIVB 3481 3485               deer                       [(TAXREF:186210, de
 >>> [tok.lemma_ for tok in doc]
 ['Brown', 'bear', '(', 'ursus', 'arcto', ')', ',', 'which', 'be', 'widely', 'distribute', 'throughout', 'the', 'northern', 'hemisphere', ',', 'be', 'recognise', 'as', 'opportunistic', 'omnivore']
 ```
+
+## Extensions
+
+* [Combining TaxoNERD with gazetteer-based NER for improved taxonomic entities recognition](https://github.com/nleguillarme/taxonerd/blob/a58808e5808d74e341d0d98bc64dfebd7a670b81/extensions/entity_ruler.ipynb)
 
 ## License
 
