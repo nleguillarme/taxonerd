@@ -27,7 +27,7 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 * Entity linking does not need an internet connection, but may require a lot of RAM depending on the size of the taxonomy (e.g. GBIF Backbone -> ~12.5Gb).
 * Thanks to [textract](https://textract.readthedocs.io/en/stable/), **TaxoNERD can extract taxon mentions from (almost) any document** (including txt, pdf, csv, xls, jpg, png, and many other formats). With TaxoNERD, the detection of taxonomic entities in a JPG file is as simple as that:
 
-<img width="50%" align="left" src="tests/test_data/test_jpg/test.jpg">
+<img width="50%" align="left" src="https://github.com/nleguillarme/taxonerd/raw/main/tests/test_data/test_jpg/test.jpg">
 
 
 ``` console
