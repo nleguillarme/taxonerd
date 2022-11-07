@@ -60,7 +60,7 @@ If you have access to a GPU, we recommend using one of the biobert models as the
 
 The en_core_eco_weak_md and en_core_eco_weak_biobert have been fine-tuned on a silver standard corpus generated using weak supervision. Therefore, they have been trained on a much larger amount of (noisy) data than their gold standard counterparts. As a result, they tend to have better recall, especially with respect to common names detection. They also have high precision. Nevertheless, their performance has not been accurately evaluated.
 
-If you do not trust weakly-supervised data and you are not really interested in detecting common names, en_core_eco_md and en_core_eco_biobert are for you. These models have been fine-tuned on a gold standard corpus (a combination of [COPIOUS](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6351503/) and [Bacteria Biotope 2019(https://aclanthology.org/D19-5719/)) and their performance has been benchmarked in our paper.
+If you do not trust weakly-supervised data and you are not really interested in detecting common names, en_core_eco_md and en_core_eco_biobert are for you. These models have been fine-tuned on a gold standard corpus (a combination of [COPIOUS](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6351503/) and [Bacteria Biotope 2019](https://aclanthology.org/D19-5719/)) and their performance has been benchmarked in our paper.
 
 ## Installation
 
