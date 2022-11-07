@@ -18,7 +18,7 @@ Le Guillarme, N., & Thuiller, W. (2022). [TaxoNERD: deep neural models for the r
 
 TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodiversity literature.
 
-:tada: **New models are out ! Now including additional NLP components (tagger, attribut ruler, lemmatizer, parser).**
+:tada: **New models are out ! Now including additional NLP components (tagger, attribut ruler, lemmatizer, parser) and more accurate common names detection.**
 
 * TaxoNERD is available as a command-line tool, a Python module, a spaCy pipeline, **and a R package thanks to reticulate**.
 * TaxoNERD provides two architectures : en_core_eco_md uses spaCy's standard Tok2Vec layer with word vectors for speed, while en_core_eco_biobert uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
@@ -32,14 +32,16 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 
 
 ``` console
-taxonerd ask --focus-on accuracy -f ./tests/test_data/test_jpg/test.jpg
+taxonerd ask -m en_core_eco_weak_biobert -f ./tests/test_data/test_jpg/test.jpg 
 T0	LIVB 180 192	Harbour seal
 T1	LIVB 194 208	Phoca vitulina
 T2	LIVB 361 375	Pacific salmon
 T3	LIVB 377 394	Oncorhynchus spp.
 T4	LIVB 455 467	harbour seal
-T5	LIVB 793 805	harbour seal
-T6	LIVB 1137 1148	cephalopods
+T5	LIVB 714 718	seal
+T6	LIVB 793 805	harbour seal
+T7	LIVB 1127 1133	fishes
+T8	LIVB 1137 1148	cephalopods
 ```
 
 
@@ -250,6 +252,8 @@ T11  LIVB 3481 3485               deer                       [(TAXREF:186210, de
 >>> [tok.lemma_ for tok in doc]
 ['Brown', 'bear', '(', 'ursus', 'arcto', ')', ',', 'which', 'be', 'widely', 'distribute', 'throughout', 'the', 'northern', 'hemisphere', ',', 'be', 'recognise', 'as', 'opportunistic', 'omnivore']
 ```
+
+More examples in our [demo Notebook](https://github.com/nleguillarme/taxonerd/blob/9f5b1e264ba129eeeda383aa8085605c8fa9b379/taxonerd-demo.ipynb).
 
 ## Extensions
 
