@@ -21,7 +21,7 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 :tada: **New models are out ! Now including additional NLP components (tagger, attribut ruler, lemmatizer, parser) and more accurate common names detection.**
 
 * TaxoNERD is available as a command-line tool, a Python module, a spaCy pipeline, **and a R package thanks to reticulate**.
-* TaxoNERD provides two architectures : en_core_eco_md uses spaCy's standard Tok2Vec layer with word vectors for speed, while en_core_eco_biobert uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
+* TaxoNERD provides two architectures : the **md** architecture uses spaCy's standard Tok2Vec layer with word vectors for speed, while the **biobert** architecture uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
 * TaxoNERD finds scientific names, common names, abbreviated species names and user-defined abbreviations.
 * TaxoNERD can link taxon mentions to entities in a reference taxonomy (NCBI Taxonomy, GBIF Backbone and TAXREF at the moment, more to come).
 * TaxoNERD is fast (once the model is loaded), and can run on CPU or GPU.
