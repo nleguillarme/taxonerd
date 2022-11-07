@@ -18,7 +18,7 @@ taxonerd <- NULL
 #' @export install.taxonerd
 #' @import reticulate
 install.taxonerd <- function(cuda.version=NULL) {
-  version = "1.4.0"
+  version = "1.5.0"
   # create a new environment 
   extras = ""
   if (!is.null(cuda.version)) {
@@ -39,11 +39,11 @@ import.taxonerd <- function() {
 #' Install the taxonomic entity recognition models.
 #'
 #' @param model The name of the model.
-#' @example \dontrun{install.model("en_core_eco_md")}
+#' @example \dontrun{install.model(model="en_core_eco_md", version="1.0.2")}
 #' @export install.model
 #' @import reticulate
-install.model <- function(model) {
-  url = sprintf("https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/%s-1.0.2.tar.gz", model)
+install.model <- function(model, version) {
+  url = sprintf("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/%s-%s.tar.gz", model, version)
   virtualenv_install("r-taxonerd", packages = url, ignore_installed = TRUE)
 }
 
