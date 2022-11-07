@@ -21,7 +21,7 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 :tada: **New models are out ! Now including additional NLP components (tagger, attribut ruler, lemmatizer, parser).**
 
 * TaxoNERD is available as a command-line tool, a Python module, a spaCy pipeline, **and a R package thanks to reticulate**.
-* TaxoNERD provides two models : en_core_eco_md uses spaCy's standard Tok2Vec layer with word vectors for speed, while en_core_eco_biobert uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
+* TaxoNERD provides two architectures : en_core_eco_md uses spaCy's standard Tok2Vec layer with word vectors for speed, while en_core_eco_biobert uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
 * TaxoNERD finds scientific names, common names, abbreviated species names and user-defined abbreviations.
 * TaxoNERD can link taxon mentions to entities in a reference taxonomy (NCBI Taxonomy, GBIF Backbone and TAXREF at the moment, more to come).
 * TaxoNERD is fast (once the model is loaded), and can run on CPU or GPU.
@@ -47,8 +47,18 @@ T6	LIVB 1137 1148	cephalopods
 
 | Model               |      Description      |  Install URL |
 |---------------------|:-------------:|------:|
-| en_core_eco_md      | A full spaCy pipeline for ecological data with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)). | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/en_core_eco_md-1.0.2.tar.gz) |
-| en_core_eco_biobert | A full spaCy pipeline for ecological data with dmis-lab/biobert-v1.1 as the transformer model.                                       | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/en_core_eco_biobert-1.0.2.tar.gz) |
+| en_core_eco_md      | A full spaCy pipeline for ecological data with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)) fine-tuned on a gold standard corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_md-1.0.2.tar.gz)      |
+| en_core_eco_biobert | A full spaCy pipeline for ecological data with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on a gold standard corpus.                               | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_biobert-1.0.2.tar.gz) |
+| en_core_eco_weak_md | A full spaCy pipeline for ecological data with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)) fine-tuned on a silver standard corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_md-1.0.2.tar.gz)    |
+| en_core_eco_weak_biobert | A full spaCy pipeline for ecological data with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on a silver standard corpus.                               | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_biobert-1.0.2.tar.gz) |
+
+### What model should I choose ?
+
+If you have access to a GPU, we recommend using one of the biobert models as they tend to be more accurate than the md models.
+
+The en_core_eco_weak_md and en_core_eco_weak_biobert have been fine-tuned on a silver standard corpus generated using weak supervision. Therefore, they have been trained on a much larger amount of (noisy) data than their gold standard counterparts. As a result, they tend to have better recall, especially with respect to common names detection. They also have high precision. Nevertheless, their performance has not been accurately evaluated.
+
+If you do not trust weakly-supervised data and you are not really interested in detecting common names, en_core_eco_md and en_core_eco_biobert are for you. These models have been fine-tuned on a gold standard corpus (a combination of [COPIOUS](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6351503/) and [Bacteria Biotope 2019(https://aclanthology.org/D19-5719/)) and their performance has been benchmarked in our paper.
 
 ## Installation
 
@@ -62,8 +72,10 @@ For GPU support, find your CUDA version using `nvcc --version` and add the versi
 
 To download the models:
 
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/en_core_eco_md-1.0.2.tar.gz
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/en_core_eco_biobert-1.0.2.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_md-1.0.2.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_biobert-1.0.2.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_md-1.0.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_biobert-1.0.0.tar.gz
 
 Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.4.0), there are 3 supported linkers:
 
@@ -74,7 +86,7 @@ Entity linker files are downloaded and cached the first time the linker is used.
 
 ### TaxoNERD for R
 
-    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.4.0/taxonerd_for_R_1.4.0.tar.gz", repos=NULL)
+    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/taxonerd_for_R_1.5.0.tar.gz", repos=NULL)
     > vignette("taxonerd") # See vignette for more information on how to install and use TaxoNERD for R
 
 ## Usage
@@ -91,17 +103,14 @@ $ taxonerd ask --help
 Usage: taxonerd ask [OPTIONS] [INPUT_TEXT]
 
 Options:
-  --focus-on TEXT        Accepted values are ['speed', 'accuracy']. Switch
-                         between TaxoNERD's models (en_core_eco_md for speed
-                         [default], en_core_eco_biobert for accuracy)
-
+  -m, --model TEXT       A TaxoNERD model [default = en_ner_eco_md]
   -i, --input-dir TEXT   Input directory
   -o, --output-dir TEXT  Output directory
   -f, --filename TEXT    Input text file
   -a, --with-abbrev      Add abbreviation detector to the pipeline
   -s, --with-sentence    Add sentence segmenter to the pipeline
   -l, --link-to TEXT     Add entity linker to the pipeline
-  -t, --thresh FLOAT     Similarity threshold for entity candidates [default =
+  -t, --thresh FLOAT     Similarity threshold for entity linking [default =
                          0.7]
 
   --prefer-gpu           Use GPU if available
@@ -114,7 +123,7 @@ Options:
   ##### Taxonomic NER from the terminal
 
 ``` console
-$ taxonerd ask --focus-on accuracy "Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivores"
+$ taxonerd ask -m en_core_eco_biobert "Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivores"
 T0	LIVB 0 11	Brown bears
 T1	LIVB 13 25	Ursus arctos
 ```
@@ -122,18 +131,18 @@ T1	LIVB 13 25	Ursus arctos
   ##### Taxonomic NER with entity linking from the terminal
 
 ``` console
-$ taxonerd ask --focus-on accuracy -l gbif_backbone "Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivores"
+$ taxonerd ask -m en_core_eco_biobert -l gbif_backbone "Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivores"
 T0	LIVB 0 11	Brown bears	[('GBIF:2433433', 'Brown Bear', 0.8313919901847839)]
 T1	LIVB 13 25	Ursus arctos	[('GBIF:2433433', 'Ursus arctos', 1.0)]
 
-$ taxonerd ask --focus-on accuracy -l gbif_backbone -t 0.85 "Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivores"
+$ taxonerd ask -m en_core_eco_biobert -l gbif_backbone -t 0.85 "Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivores"
 T0	LIVB 13 25	Ursus arctos	[('GBIF:2433433', 'Ursus arctos', 1.0)]
 ```
 
   ##### Taxonomic NER from a text file (with abbreviation detection)
 
 ``` console
-$ taxonerd ask --focus-on accuracy --with-abbrev -f ./tests/test_data/test_txt/test1.txt
+$ taxonerd ask -m en_core_eco_biobert --with-abbrev -f ./tests/test_data/test_txt/test1.txt
 T0	LIVB 4 21	pinewood nematode
 T1	LIVB 23 26	PWN
 T2	LIVB 29 55	Bursaphelenchus xylophilus

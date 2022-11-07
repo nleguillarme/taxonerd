@@ -12,18 +12,12 @@ def cli():
 
 
 @cli.command()
-# @click.option(
-#     "--model",
-#     "-m",
-#     type=str,
-#     help="A spaCy taxonomic NER model",
-#     # default="en_ner_eco_md",
-# )
 @click.option(
-    "--focus-on",
+    "--model",
+    "-m",
     type=str,
-    help="Accepted values are ['speed', 'accuracy']. Switch between TaxoNERD's models (en_core_eco_md for speed [default], en_core_eco_biobert for accuracy)",
-    default="speed",
+    help="A TaxoNERD model [default = en_ner_eco_md]",
+    default="en_core_eco_md",
 )
 @click.option("--input-dir", "-i", type=str, help="Input directory")
 @click.option("--output-dir", "-o", type=str, help="Output directory")
@@ -46,7 +40,7 @@ def cli():
 @click.option(
     "--thresh",
     "-t",
-    help="Similarity threshold for entity candidates [default = 0.7]",
+    help="Similarity threshold for entity linking [default = 0.7]",
     default=0.7,
 )
 @click.option("--prefer-gpu", type=bool, help="Use GPU if available", is_flag=True)
@@ -62,7 +56,7 @@ def ask(
     thresh,
     prefer_gpu,
     verbose,
-    focus_on,
+    model,
     input_text,
 ):
 
@@ -70,15 +64,11 @@ def ask(
     if verbose:
         logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
-    ner_model = (
-        "en_core_eco_biobert"
-        if (focus_on and focus_on == "accuracy")
-        else "en_core_eco_md"
-    )
+    ner_model = model
 
     prefer_gpu = prefer_gpu if prefer_gpu else False  # (focus_on == "accuracy")
 
-    ner = TaxoNERD(
+    nerd = TaxoNERD(
         prefer_gpu=prefer_gpu,
         verbose=verbose,
         logger=logger,
@@ -89,21 +79,21 @@ def ask(
         exclude.append("taxo_abbrev_detector")
     if not with_sentence:
         exclude.append("pysbd_sentencizer")
-    ner.load(ner_model, exclude=exclude, linker=link_to, threshold=thresh)
+    nerd.load(ner_model, exclude=exclude, linker=link_to, threshold=thresh)
 
     if output_dir:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
     if input_text:
-        df = ner.find_in_text(input_text)
+        df = nerd.find_in_text(input_text)
         df.to_csv(sys.stdout, sep="\t", header=False)
     else:
         dfs = {}
         if filename:
-            dfs[os.path.basename(filename)] = ner.find_in_file(filename, output_dir)
+            dfs[os.path.basename(filename)] = nerd.find_in_file(filename, output_dir)
         elif input_dir:
-            dfs = ner.find_in_corpus(input_dir, output_dir)
+            dfs = nerd.find_in_corpus(input_dir, output_dir)
 
         if not output_dir:
             if len(dfs) > 1:

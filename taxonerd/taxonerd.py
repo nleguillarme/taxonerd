@@ -5,7 +5,6 @@ from glob import glob
 import warnings
 import sys
 import logging
-from spacy import displacy
 from spacy.tokens import Span
 from taxonerd.extractor import TextExtractor
 
