@@ -51,8 +51,8 @@ T8	LIVB 1137 1148	cephalopods
 |---------------------|:-------------:|------:|
 | en_core_eco_md      | A full spaCy pipeline for ecological data with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)) fine-tuned on a gold standard corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_md-1.0.2.tar.gz)      |
 | en_core_eco_biobert | A full spaCy pipeline for ecological data with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on a gold standard corpus.                               | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_biobert-1.0.2.tar.gz) |
-| en_core_eco_weak_md | A full spaCy pipeline for ecological data with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)) fine-tuned on a silver standard corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_md-1.0.2.tar.gz)    |
-| en_core_eco_weak_biobert | A full spaCy pipeline for ecological data with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on a silver standard corpus.                               | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_biobert-1.0.2.tar.gz) |
+| en_core_eco_weak_md | A full spaCy pipeline for ecological data with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)) fine-tuned on a silver standard corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_md-1.0.0.tar.gz)    |
+| en_core_eco_weak_biobert | A full spaCy pipeline for ecological data with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on a silver standard corpus.                               | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_biobert-1.0.0.tar.gz) |
 
 ### What model should I choose ?
 
