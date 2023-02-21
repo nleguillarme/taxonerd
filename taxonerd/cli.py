@@ -74,11 +74,13 @@ def ask(
         logger=logger,
     )
 
-    exclude = ["tagger", "attribute_ruler", "lemmatizer", "parser"]
+    exclude = ["tagger", "attribute_ruler", "parser"]
     if not with_abbrev:
         exclude.append("taxo_abbrev_detector")
     if not with_sentence:
         exclude.append("pysbd_sentencizer")
+    if not link_to:
+        exclude.append("lemmatizer")
     nerd.load(ner_model, exclude=exclude, linker=link_to, threshold=thresh)
 
     if output_dir:

@@ -104,8 +104,15 @@ class EntityLinker:
             mention_strings = [
                 ent._.long_form.text for ent in doc.ents if ent._.long_form is not None
             ]
+            # mention_strings = [
+            #     " ".join([tok.lemma_ for tok in ent._.long_form]) for ent in doc.ents if ent._.long_form is not None
+            # ]
         else:
             mention_strings = [ent.text for ent in doc.ents]
+            # mention_strings = [
+            #     " ".join([tok.lemma_ for tok in ent]) for ent in doc.ents
+            # ]
+        # print(doc.ents, mention_strings)
         unique_mention_strings = set(mention_strings)
 
         if len(unique_mention_strings) > 0:
@@ -146,8 +153,11 @@ class EntityLinker:
                         mention._.kb_ents = kb_ents_per_mention_string[
                             mention._.long_form.text
                         ]
+                        # mention_text = " ".join([tok.lemma_ for tok in mention._.long_form])
                 else:
+                    # mention_text = " ".join([tok.lemma_ for tok in mention])
                     mention._.kb_ents = kb_ents_per_mention_string[mention.text]
+                # mention._.kb_ents = kb_ents_per_mention_string[mention_text] #mention.text]
                 if mention._.kb_ents:
                     new_ents.append(mention)
 

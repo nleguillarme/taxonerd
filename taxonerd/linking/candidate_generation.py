@@ -277,7 +277,7 @@ class CandidateGenerator:
         empty_vectors_boolean_flags = numpy.array(vectors.sum(axis=1) != 0).reshape(-1)
         empty_vectors_count = vectors.shape[0] - sum(empty_vectors_boolean_flags)
         if self.verbose:
-            logger.info(f"Number of empty vectors: {empty_vectors_count}")
+            print(f"Number of empty vectors: {empty_vectors_count}")
 
         # init extended_neighbors with a list of Nones
         extended_neighbors = numpy.empty(
@@ -305,11 +305,16 @@ class CandidateGenerator:
         # neighbors need to be converted to an np.array of objects instead of ndarray of dimensions len(vectors)xk
         # Solution: add a row to `neighbors` with any length other than k. This way, calling np.array(neighbors)
         # returns an np.array of objects
-        neighbors.append([])
-        distances.append([])
+        neighbors.append([None]*(k+1)) # Just using [] create a ValueError in R
+        distances.append([None]*(k+1))
+
         # interleave `neighbors` and Nones in `extended_neighbors`
-        extended_neighbors[empty_vectors_boolean_flags] = numpy.array(neighbors)[:-1]
-        extended_distances[empty_vectors_boolean_flags] = numpy.array(distances)[:-1]
+        extended_neighbors[empty_vectors_boolean_flags] = numpy.array(
+            neighbors, dtype=object
+        )[:-1]
+        extended_distances[empty_vectors_boolean_flags] = numpy.array(
+            distances, dtype=object
+        )[:-1]
 
         return extended_neighbors, extended_distances
 

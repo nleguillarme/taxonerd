@@ -58,6 +58,9 @@ class TaxoNERD:
             self.nlp.add_pipe("taxo_abbrev_detector")
             self.abbrev = "taxo_abbrev_detector"
         if linker:
+            if "lemmatizer" in exclude:
+                raise Exception("Lemmatizer is needed for entity linking. Make sure lemmatizer is not excluded from the pipeline")
+
             from taxonerd.linking.linking_utils import KnowledgeBaseFactory
             from taxonerd.linking.candidate_generation import CandidateGenerator
             from taxonerd.linking.linking import EntityLinker
