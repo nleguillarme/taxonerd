@@ -18,7 +18,7 @@ taxonerd <- NULL
 #' @export install.taxonerd
 #' @import reticulate
 install.taxonerd <- function(cuda.version=NULL) {
-  version = "1.5.0"
+  version = "1.5.2"
   # create a new environment 
   extras = ""
   if (!is.null(cuda.version)) {
@@ -51,7 +51,7 @@ install.model <- function(model, version) {
 #'
 #' @param model The name of the model. Default is en_core_eco_md.
 #' @param exclude A list containing the names of pipeline components to exclude. Excluded components won’t be loaded. Default is empty list.
-#' @param linker The name of the entity linker. Default is NULL.
+#' @param linker The name of the entity linker or path to a linker configuration file. Default is NULL.
 #' @param thresh The mention-entity candidate similarity threshold for entity linking. Default is 0.7.
 #' @param gpu Set to TRUE to use GPU if available. Default is FALSE.
 #' @return a TaxoNERD object.

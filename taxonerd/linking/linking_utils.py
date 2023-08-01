@@ -3,16 +3,9 @@ import json
 from pathlib import Path
 from collections import defaultdict
 import sqlite3
-
 from .file_cache import cached_path
-from scispacy.umls_semantic_type_tree import (
-    UmlsSemanticTypeTree,
-    construct_umls_tree_from_tsv,
-)
-
 from urllib.request import pathname2url
 import os
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -25,7 +18,6 @@ def escape_quotes(alias):
 
 
 class Entity(NamedTuple):
-
     concept_id: str
     canonical_name: str
     aliases: List[str]
@@ -33,7 +25,6 @@ class Entity(NamedTuple):
     definition: Optional[str] = None
 
     def __repr__(self):
-
         rep = ""
         num_aliases = len(self.aliases)
         rep = rep + f"CUI: {self.concept_id}, Name: {self.canonical_name}\n"
@@ -72,10 +63,24 @@ class KnowledgeBase:
             )
 
         file_path = cached_path(file_path)
-        if type(file_path) is tuple:
-            user_friendly_name = file_path[1]
-            file_path = file_path[0]
         db_path = os.path.splitext(file_path)[0] + ".db"
+
+        if file_path.endswith("jsonl"):
+            raw = (json.loads(line) for line in open(cached_path(file_path)))
+        else:
+            raw = json.load(open(cached_path(file_path)))
+
+        alias_to_cuis: Dict[str, Set[str]] = defaultdict(set)
+        self.cui_to_entity: Dict[str, Entity] = {}
+
+        for concept in raw:
+            unique_aliases = set(concept["aliases"])
+            unique_aliases.add(concept["canonical_name"])
+            for alias in unique_aliases:
+                alias_to_cuis[alias].add(concept["concept_id"])
+            self.cui_to_entity[concept["concept_id"]] = Entity(**concept)
+
+        self.alias_to_cuis: Dict[str, Set[str]] = {**alias_to_cuis}
 
         if not os.path.exists(db_path):
             logger.info(
@@ -83,35 +88,15 @@ class KnowledgeBase:
                     db_path, file_path
                 )
             )
-            self.conn = self.json_to_sqlite(file_path, db_path)
+            self.conn = self.json_to_sqlite(db_path)
 
         self.conn = self.get_conn_to_db(db_path)
 
-    def json_to_sqlite(self, file_path: str = None, db_path: str = None):
-        if file_path.endswith("jsonl"):
-            raw = (json.loads(line) for line in open(cached_path(file_path)))
-        else:
-            raw = json.load(open(cached_path(file_path)))
-
-        alias_to_cuis = defaultdict(set)
-        cui_to_entity = {}
-
-        for concept in raw:
-            unique_aliases = set(concept["aliases"])
-            unique_aliases.add(concept["canonical_name"])
-            for alias in unique_aliases:
-                # alias_to_cuis[alias] = (
-                #     set() if alias not in alias_to_cuis else alias_to_cuis[alias]
-                # )
-                alias_to_cuis[alias].add(concept["concept_id"])
-            cui_to_entity[concept["concept_id"]] = Entity(**concept)
-
-        alias_to_cuis: Dict[str, Set[str]] = {**alias_to_cuis}
-
+    def json_to_sqlite(self, db_path: str = None):
         conn = sqlite3.connect(db_path)
         c = conn.cursor()
         c.execute("""CREATE TABLE alias_to_cuis (alias, cuis)""")
-        entries = [(k, str(v)) for k, v in alias_to_cuis.items()]
+        entries = [(k, str(v)) for k, v in self.alias_to_cuis.items()]
         c.executemany("INSERT INTO alias_to_cuis VALUES (?,?)", entries)
         conn.commit()
         return conn
@@ -146,9 +131,7 @@ class KnowledgeBase:
         mentions_to_concepts: Dict[str, List[str]] = defaultdict(list)
         for x in c.fetchall():
             concept_ids = [self.prefix + t.strip() for t in x[1].strip("{}").split(",")]
-            mentions_to_concepts[x[0]].extend(
-                concept_ids
-            )  # self.prefix + x[1].strip("{}"))
+            mentions_to_concepts[x[0]].extend(concept_ids)
         return mentions_to_concepts
 
 
@@ -163,7 +146,8 @@ class KnowledgeBaseFactory:
         elif name == "ncbi_lite":
             return NCBILiteKnowledgeBase()
         else:
-            raise ValueError(name)
+            logger.info(f"Cannot initialize KnowledgeBase with name {name}")
+            return None
 
 
 class GbifKnowledgeBase(KnowledgeBase):

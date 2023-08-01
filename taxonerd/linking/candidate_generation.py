@@ -1,5 +1,5 @@
 from typing import List, Dict, Tuple, NamedTuple, Type
-from pathlib import Path
+from os import path
 import json
 import datetime
 from collections import defaultdict
@@ -31,10 +31,12 @@ class LinkerPaths(NamedTuple):
         Path to the indices mapping concepts to aliases in the index.
     """
 
-    ann_index: str
-    tfidf_vectorizer: str
-    tfidf_vectors: str
-    concept_aliases_list: str
+    ann_index: str | Tuple[str, str]
+    tfidf_vectorizer: str | Tuple[str, str]
+    tfidf_vectors: str | Tuple[str, str]
+    concept_aliases_list: str | Tuple[str, str]
+    # kb: str | Path = None
+    # prefix: str = None
 
 
 GbifLinkerPaths = LinkerPaths(
@@ -218,7 +220,7 @@ class CandidateGenerator:
         (higher is slower but slightly more accurate). Note that this parameter is ignored
         if a preconstructed ann_index is passed.
     name: str, optional (default = None)
-        The name of the pretrained entity linker to load. Must be one of 'umls' or 'mesh'.
+        The name of the prPathetrained entity linker to load. Must be one of 'umls' or 'mesh'.
     """
 
     def __init__(
@@ -229,22 +231,36 @@ class CandidateGenerator:
         kb: KnowledgeBase = None,
         verbose: bool = False,
         ef_search: int = 200,
-        name: str = None,
+        name_or_path: str = None,
+        # path: Path = None,
     ) -> None:
-
-        if name is not None and any(
+        if name_or_path is not None and any(
             [ann_index, tfidf_vectorizer, ann_concept_aliases_list]  # , kb]
         ):
             raise ValueError(
                 "You cannot pass both a name argument and other constuctor arguments."
             )
 
-        # Set the name to the default, after we have checked
-        # the compatability with the args above.
-        if name is None:
+        if name_or_path:
+            self.kb = kb or KnowledgeBaseFactory().get_kb(name_or_path)
+            if not self.kb:
+                if path.exists(name_or_path):
+                    with open(name_or_path) as f:
+                        linker_cfg = json.load(f)
+                    name = linker_cfg["name"]
+                    self.kb = KnowledgeBase(**linker_cfg["kb"])
+                    linker_paths = LinkerPaths(**linker_cfg["linker_paths"])
+                else:
+                    raise ValueError(
+                        f"{name_or_path} is not a valid linker name nor a valid path to a linker config."
+                    )
+            else:
+                name = name_or_path
+                linker_paths = DEFAULT_PATHS.get(name_or_path)
+        else:
             name = "gbif_backbone"
-
-        linker_paths = DEFAULT_PATHS.get(name, GbifLinkerPaths)
+            self.kb = KnowledgeBaseFactory().get_kb(name)
+            linker_paths = DEFAULT_PATHS.get(name, GbifLinkerPaths)
 
         self.ann_index = ann_index or load_approximate_nearest_neighbours_index(
             linker_paths=linker_paths, ef_search=ef_search
@@ -256,11 +272,7 @@ class CandidateGenerator:
             open(cached_path(linker_paths.concept_aliases_list))
         )
 
-        self.kb = kb or KnowledgeBaseFactory().get_kb(name)
         self.verbose = verbose
-
-        # TODO(Mark): Remove in scispacy v1.0.
-        # self.umls = self.kb
 
     def nmslib_knn_with_zero_vectors(
         self, vectors: numpy.ndarray, k: int
@@ -305,8 +317,8 @@ class CandidateGenerator:
         # neighbors need to be converted to an np.array of objects instead of ndarray of dimensions len(vectors)xk
         # Solution: add a row to `neighbors` with any length other than k. This way, calling np.array(neighbors)
         # returns an np.array of objects
-        neighbors.append([None]*(k+1)) # Just using [] create a ValueError in R
-        distances.append([None]*(k+1))
+        neighbors.append([None] * (k + 1))  # Just using [] create a ValueError in R
+        distances.append([None] * (k + 1))
 
         # interleave `neighbors` and Nones in `extended_neighbors`
         extended_neighbors[empty_vectors_boolean_flags] = numpy.array(
@@ -438,7 +450,11 @@ def create_tfidf_ann_index(
     # Default values resulted in very low recall.
 
     # set to the maximum recommended value. Improves recall at the expense of longer indexing time.
-    # TODO: This variable name is so hot because I don't actually know what this parameter does.
+    # We use the HNSW (Hierarchical Navigable Small World Graph) representation which is constructed
+    # by consecutive insertion of elements in a random order by connecting them to M closest neighbours
+    # from the previously inserted elements. These later become bridges between the network hubs that
+    # improve overall graph connectivity. (bigger M -> higher recall, slower creation)
+    # For more details see:  https://arxiv.org/pdf/1603.09320.pdf?
     m_parameter = 100
     # `C` for Construction. Set to the maximum recommended value
     # Improves recall at the expense of longer indexing time
@@ -462,11 +478,7 @@ def create_tfidf_ann_index(
     # matrix representations in scipy: https://github.com/scipy/scipy/issues/7408
     print(f"Fitting tfidf vectorizer on {len(concept_aliases)} aliases")
     tfidf_vectorizer = TfidfVectorizer(
-        analyzer="char_wb",
-        ngram_range=(3, 3),
-        min_df=10,
-        dtype=numpy.float32,
-        lowercase=True,
+        analyzer="char_wb", ngram_range=(3, 3), min_df=10, dtype=numpy.float32
     )
     start_time = datetime.datetime.now()
     concept_alias_tfidfs = tfidf_vectorizer.fit_transform(concept_aliases)
@@ -499,8 +511,9 @@ def create_tfidf_ann_index(
         f"Saving list of concept ids and tfidfs vectors to {uml_concept_aliases_path} and {tfidf_vectors_path}"
     )
     json.dump(concept_aliases, open(uml_concept_aliases_path, "w"))
+
     scipy.sparse.save_npz(
-        tfidf_vectors_path, concept_alias_tfidfs.astype(numpy.float16)
+        tfidf_vectors_path, concept_alias_tfidfs  # .astype(numpy.float16)
     )
 
     print(f"Fitting ann index on {len(concept_aliases)} aliases (takes 2 hours)")

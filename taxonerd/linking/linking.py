@@ -1,7 +1,8 @@
 from spacy.tokens import Doc
 from spacy.tokens import Span
 from spacy.language import Language
-from taxonerd.linking.candidate_generation import CandidateGenerator
+from taxonerd.linking.candidate_generation import CandidateGenerator, LinkerPaths
+from typing import Optional
 
 
 @Language.factory("taxo_linker")
@@ -65,23 +66,23 @@ class EntityLinker:
 
     def __init__(
         self,
-        nlp: Language = None,
+        nlp: Optional[Language] = None,
         name: str = "taxonerd_linker",
-        candidate_generator: CandidateGenerator = None,
+        candidate_generator: Optional[CandidateGenerator] = None,
         resolve_abbreviations: bool = True,
         k: int = 30,
         threshold: float = 0.7,
         no_definition_threshold: float = 0.95,
         filter_for_definitions: bool = True,
         max_entities_per_mention: int = 5,
-        linker_name: str = None,
+        linker_name: Optional[str] = None,
     ):
         # TODO(Mark): Remove in scispacy v1.0.
         # Span.set_extension("umls_ents", default=[], force=True)
         Span.set_extension("kb_ents", default=[], force=True)
 
         self.candidate_generator = candidate_generator or CandidateGenerator(
-            name=linker_name
+            name_or_path=linker_name
         )
         self.resolve_abbreviations = resolve_abbreviations
         self.k = k
@@ -116,7 +117,6 @@ class EntityLinker:
         unique_mention_strings = set(mention_strings)
 
         if len(unique_mention_strings) > 0:
-
             batch_candidates = self.candidate_generator(unique_mention_strings, self.k)
             # batch_candidates = self.candidate_generator(mention_strings, self.k)
 

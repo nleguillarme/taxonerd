@@ -29,7 +29,7 @@ taxonerd is an R package that provides deep neural network models for recognizin
 You can install the released version of taxonerd from GitHub with:
 
 ```{r eval=FALSE}
-install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/taxonerd_for_R_1.5.0.tar.gz", repos=NULL)
+install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.2/taxonerd_for_R_1.5.2.tar.gz", repos=NULL)
 ```
 
 Check for available releases on the project's GitHub page : https://github.com/nleguillarme/taxonerd
@@ -89,17 +89,19 @@ for (doi in res$data$id) {
 
 The corpus.dir directory now contains a set of 10 documents in PDf format.
 
-The next step is to initialize the taxonomic entity recognition engine. For this, we will need a taxonomic entity recognition model. TaxoNERD provides two models : en_core_eco_md - a smaller model designed for speed - and en_core_eco_biobert - a more complex architecture with higher accuracy. Note that we strongly recommend running the en_core_eco_biobert model on a GPU, as it may be prohibitively slow on CPU. Let's download and install the en_core_eco_md model:
+The next step is to initialize the taxonomic entity recognition engine. For this, we will need a taxonomic entity recognition model. TaxoNERD provides two model architectures : md - a smaller architecture designed for speed - and biobert - a more complex architecture with higher accuracy. Each architecture comes in two flavors: the en_core_eco_<md, biobert> models were fine-tuned on a gold standard corpus, while the en_core_eco_weak_<md, biobert> were fine-tuned on a silver standard corpus.
+
+Note that we strongly recommend running the biobert architecture on a GPU, as it may be prohibitively slow on CPU. Let's download and install the en_core_eco_weak_md model:
 
 ```{r results='hide'}
-install.model(model="en_core_eco_md", version="1.0.2")
+install.model(model="en_core_eco_weak_md", version="1.0.0")
 ```
 
-In this example, we will use the en_core_eco_md model with the abbreviation detector and sentencizer enabled, and we will ask the engine to link detected taxon mentions to a subset of the NCBI Taxonomy. Entity linking relies on a approximate nearest neighbors search and uses a minimum similarity threshold to filter out entities whose name is not similar enough to the textual mention. Here, we will set the minimum similarity threshold to 0.85.
+In this example, we will use the en_core_eco_weak_md model with the abbreviation detector and sentencizer enabled, and we will ask the engine to link detected taxon mentions to a subset of the NCBI Taxonomy. Entity linking relies on a approximate nearest neighbors search and uses a minimum similarity threshold to filter out entities whose name is not similar enough to the textual mention. Here, we will set the minimum similarity threshold to 0.85.
 
 ```{r}
 # Initialize the taxonomic NER engine
-taxonerd <- init.taxonerd(model = "en_core_eco_md", exclude=list("tagger", "attribute_ruler", "lemmatizer", "parser"), linker="taxref", thresh=0.85, gpu=FALSE)
+taxonerd <- init.taxonerd(model = "en_core_eco_weak_md", exclude=list("tagger", "attribute_ruler", "parser"), linker="taxref", thresh=0.85, gpu=FALSE)
 ```
 
 We are now ready to run the taxonomic entity recognition engine on our corpus of documents. Note that TaxoNERD can extract taxon mentions from (almost) any document (including txt, pdf, csv, xls, jpg, png, and many other formats). All the files required to perform entity linking against a given taxonomy are downloaded and cached the first time linking is enabled. This may take some time, but it should only be done once.
