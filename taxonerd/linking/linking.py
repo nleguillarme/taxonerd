@@ -128,10 +128,11 @@ class EntityLinker:
                 # for mention, candidates in zip(doc.ents, batch_candidates):
                 predicted = []
                 for cand in candidates:
+                    updated_concept_id = int(cand.concept_id.split(':')[1])
                     score = max(cand.similarities)
                     if (
                         self.filter_for_definitions
-                        and self.kb.cui_to_entity[cand.concept_id].definition is None
+                        and self.kb.cui_to_entity[updated_concept_id].definition is None
                         and score < self.no_definition_threshold
                     ):
                         continue
@@ -140,7 +141,7 @@ class EntityLinker:
                 sorted_predicted = sorted(predicted, reverse=True, key=lambda x: x[2])
                 # mention._.umls_ents = sorted_predicted[: self.max_entities_per_mention]
                 kb_ents = sorted_predicted[: self.max_entities_per_mention]
-
+ 
                 kb_ents_per_mention_string[mention_string] = (
                     kb_ents if kb_ents else None
                 )
