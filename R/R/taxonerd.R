@@ -15,18 +15,17 @@ taxonerd <- NULL
 #'
 #' @param cuda.version Your CUDA version. Default = NULL.
 #' @example \dontrun{install.taxonerd()}
-#' @example \dontrun{install.taxonerd(cuda.version="cuda113")}
+#' @example \dontrun{install.taxonerd(cuda.version="cuda12x")}
 #' @export install.taxonerd
 #' @import reticulate
 install.taxonerd <- function(cuda.version=NULL) {
-  version = "1.5.2"
+  version = "1.5.3"
   # create a new environment 
   extras = ""
   if (!is.null(cuda.version)) {
     extras = paste("[",cuda.version,"]",sep="")
   }
-  #reticulate::virtualenv_install("r-taxonerd", packages = paste("taxonerd",extras,"==",version,sep=""), ignore_installed = TRUE)
-  reticulate::virtualenv_install("r-taxonerd", packages = "/home/leguilln/workspace/nlp/taxonerd/dist/taxonerd-1.5.2.tar.gz", ignore_installed = TRUE)
+  reticulate::virtualenv_install("r-taxonerd", packages = paste("taxonerd",extras,"==",version,sep=""), ignore_installed = TRUE)
 }
 
 #' Import the TaxoNERD python package.
@@ -41,27 +40,27 @@ import.taxonerd <- function() {
 #' Install the taxonomic entity recognition models.
 #'
 #' @param model The name of the model.
-#' @example \dontrun{install.model(model="en_core_eco_md", version="1.0.2")}
+#' @example \dontrun{install.model(model="en_ner_eco_md", version="1.1.0")}
 #' @export install.model
 #' @import reticulate
 install.model <- function(model, version) {
-  url = sprintf("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/%s-%s.tar.gz", model, version)
+  url = sprintf("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/%s-%s.tar.gz", model, version)
   virtualenv_install("r-taxonerd", packages = url, ignore_installed = TRUE)
 }
 
 #' Initialize the taxonomic entity recognition engine.
 #'
-#' @param model The name of the model. Default is en_core_eco_md.
+#' @param model The name of the model. Default is en_ner_eco_md
 #' @param exclude A list containing the names of pipeline components to exclude. Excluded components won’t be loaded. Default is empty list.
 #' @param linker The name of the entity linker or path to a linker configuration file. Default is NULL.
 #' @param thresh The mention-entity candidate similarity threshold for entity linking. Default is 0.7.
 #' @param gpu Set to TRUE to use GPU if available. Default is FALSE.
 #' @return a TaxoNERD object.
 #' @examples
-#' \dontrun{init.taxonerd(model="en_core_eco_biobert", gpu=TRUE)}
-#' \dontrun{init.taxonerd(model="en_core_eco_md", exclude=list("pysbd_sentencizer"), linker="taxref", thresh=0.7, gpu=FALSE)}
+#' \dontrun{init.taxonerd(model="en_ner_eco_biobert", gpu=TRUE)}
+#' \dontrun{init.taxonerd(model="en_ner_eco_md", exclude=list("pysbd_sentencizer"), linker="taxref", thresh=0.7, gpu=FALSE)}
 #' @export init.taxonerd
-init.taxonerd <- function(model="en_core_eco_md", exclude=list(), linker=NULL, thresh=0.7, gpu=FALSE) {
+init.taxonerd <- function(model="en_ner_eco_md", exclude=list(), linker=NULL, thresh=0.7, gpu=FALSE) {
   taxonerd <- import.taxonerd()
   client <- taxonerd$TaxoNERD(gpu)
   nlp <- client$load(model=model, exclude=exclude, linker=linker, threshold=thresh)
