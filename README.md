@@ -51,8 +51,8 @@ T8	LIVB 1137 1148	cephalopods
 |---------------------|-------------|------:|
 | en_ner_eco_md       | A spaCy NER model with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)), fine-tuned on an ecological corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/en_ner_eco_md-1.1.0.tar.gz)      |
 | en_ner_eco_biobert | A spaCy NER model with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on an ecological corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/en_ner_eco_biobert-1.1.0.tar.gz) |
-| en_core_eco_weak_md | A spaCy NER model with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)), fine-tuned on a silver standard corpus (for improved performance on vernacular names). **Only available for taxonerd<=1.5.3.** | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_md-1.0.0.tar.gz)    |
-| en_core_eco_weak_biobert | A spaCy NER model with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on a silver standard corpus (for improved performance on vernacular names). **Only available for taxonerd<=1.5.3.** | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_biobert-1.0.0.tar.gz) |
+| en_core_eco_weak_md | A spaCy NER model with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)), fine-tuned on a silver standard corpus (for improved performance on vernacular names). **Only available for taxonerd<1.5.3.** | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_md-1.0.0.tar.gz)    |
+| en_core_eco_weak_biobert | A spaCy NER model with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on a silver standard corpus (for improved performance on vernacular names). **Only available for taxonerd<1.5.3.** | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_biobert-1.0.0.tar.gz) |
 
 ### What model should I choose ?
 
