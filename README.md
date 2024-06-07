@@ -18,7 +18,7 @@ Le Guillarme, N., & Thuiller, W. (2022). [TaxoNERD: deep neural models for the r
 
 TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodiversity literature.
 
-:tada: **New models are out ! Now including additional NLP components (tagger, attribut ruler, lemmatizer, parser) and more accurate common names detection.**
+:tada: **It is now possible to use custom taxonomies for entity linking ! Check our [example Notebook](https://github.com/nleguillarme/taxonerd/blob/61ff9792628214a5524b0f2cc5c205d4ca82bfc9/extensions/custom_taxonomy.ipynb)**
 
 * TaxoNERD is available as a command-line tool, a Python module, a spaCy pipeline, **and a R package thanks to reticulate**.
 * TaxoNERD provides two architectures : the **md** architecture uses spaCy's standard Tok2Vec layer with word vectors for speed, while the **biobert** architecture uses a Transformer-based pretrained language model (dmis-lab/biobert-v1.1) for accuracy.
@@ -79,7 +79,7 @@ To download the models:
     $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_md-1.0.0.tar.gz
     $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_biobert-1.0.0.tar.gz
 
-Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.5.1), there are 3 supported linkers:
+Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.5.2), there are 3 supported linkers:
 
 * gbif_backbone: Links to [GBIF Backbone Taxonomy (2019-09-06)](https://www.gbif.org/fr/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) (~9.5M names for ~3.5M taxa).
 * taxref: Links to [TAXREF (v13)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/13.0/menu) (~1.2M names for ~267k taxa).
@@ -88,7 +88,7 @@ Entity linker files are downloaded and cached the first time the linker is used.
 
 ### TaxoNERD for R
 
-    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.1/taxonerd_for_R_1.5.1.tar.gz", repos=NULL)
+    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.2/taxonerd_for_R_1.5.2.tar.gz", repos=NULL)
     > vignette("taxonerd") # See vignette for more information on how to install and use TaxoNERD for R
 
 ## Usage
