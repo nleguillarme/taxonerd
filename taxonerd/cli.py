@@ -17,7 +17,7 @@ def cli():
     "-m",
     type=str,
     help="A TaxoNERD model [default = en_ner_eco_md]",
-    default="en_core_eco_md",
+    default="en_ner_eco_md",
 )
 @click.option("--input-dir", "-i", type=str, help="Input directory")
 @click.option("--output-dir", "-o", type=str, help="Output directory")
@@ -81,7 +81,12 @@ def ask(
         exclude.append("pysbd_sentencizer")
     if not link_to:
         exclude.append("lemmatizer")
-    nerd.load(ner_model, exclude=exclude, linker=link_to, threshold=thresh)
+    nerd.load(
+        ner_model,
+        exclude=exclude,
+        linker=link_to,
+        threshold=thresh,
+    )
 
     if output_dir:
         if not os.path.exists(output_dir):

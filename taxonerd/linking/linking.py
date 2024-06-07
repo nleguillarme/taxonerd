@@ -67,7 +67,7 @@ class EntityLinker:
     def __init__(
         self,
         nlp: Optional[Language] = None,
-        name: str = "taxonerd_linker",
+        name: str = "taxon_linker",
         candidate_generator: Optional[CandidateGenerator] = None,
         resolve_abbreviations: bool = True,
         k: int = 30,
@@ -77,10 +77,7 @@ class EntityLinker:
         max_entities_per_mention: int = 5,
         linker_name: Optional[str] = None,
     ):
-        # TODO(Mark): Remove in scispacy v1.0.
-        # Span.set_extension("umls_ents", default=[], force=True)
         Span.set_extension("kb_ents", default=[], force=True)
-
         self.candidate_generator = candidate_generator or CandidateGenerator(
             name_or_path=linker_name
         )
@@ -92,9 +89,6 @@ class EntityLinker:
         self.filter_for_definitions = filter_for_definitions
         self.max_entities_per_mention = max_entities_per_mention
 
-        # TODO(Mark): Remove in scispacy v1.0. This is for backward compatability only.
-        # self.umls = self.kb
-
     def __call__(self, doc: Doc) -> Doc:
         mentions = doc.ents
         mention_strings = []
@@ -102,23 +96,24 @@ class EntityLinker:
         if self.resolve_abbreviations and Doc.has_extension("abbreviations"):
             # TODO: This is possibly sub-optimal - we might
             # prefer to look up both the long and short forms.
+            # mention_strings = [
+            #     ent._.long_form.text for ent in doc.ents if ent._.long_form is not None
+            # ]
             mention_strings = [
-                ent._.long_form.text for ent in doc.ents if ent._.long_form is not None
+                " ".join([tok.lemma_ for tok in ent._.long_form])
+                for ent in doc.ents
+                if ent._.long_form is not None
             ]
-            # mention_strings = [
-            #     " ".join([tok.lemma_ for tok in ent._.long_form]) for ent in doc.ents if ent._.long_form is not None
-            # ]
         else:
-            mention_strings = [ent.text for ent in doc.ents]
-            # mention_strings = [
-            #     " ".join([tok.lemma_ for tok in ent]) for ent in doc.ents
-            # ]
-        # print(doc.ents, mention_strings)
+            # mention_strings = [ent.text for ent in doc.ents]
+            mention_strings = [
+                " ".join([tok.lemma_ for tok in ent]) for ent in doc.ents
+            ]
+
         unique_mention_strings = set(mention_strings)
 
         if len(unique_mention_strings) > 0:
             batch_candidates = self.candidate_generator(unique_mention_strings, self.k)
-            # batch_candidates = self.candidate_generator(mention_strings, self.k)
 
             kb_ents_per_mention_string = {}
 
@@ -127,6 +122,7 @@ class EntityLinker:
             ):
                 # for mention, candidates in zip(doc.ents, batch_candidates):
                 predicted = []
+
                 for cand in candidates:
                     score = max(cand.similarities)
                     if (
@@ -137,9 +133,18 @@ class EntityLinker:
                         continue
                     if score > self.threshold:
                         predicted.append((cand.concept_id, cand.aliases[0], score))
+
                 sorted_predicted = sorted(predicted, reverse=True, key=lambda x: x[2])
+
+                kb_ents = None
+                if sorted_predicted:
+                    max_score = sorted_predicted[0][-1]
+                    kb_ents = [
+                        pred for pred in sorted_predicted if pred[-1] == max_score
+                    ]
+
                 # mention._.umls_ents = sorted_predicted[: self.max_entities_per_mention]
-                kb_ents = sorted_predicted[: self.max_entities_per_mention]
+                # kb_ents = sorted_predicted[: self.max_entities_per_mention]
 
                 kb_ents_per_mention_string[mention_string] = (
                     kb_ents if kb_ents else None
@@ -150,14 +155,18 @@ class EntityLinker:
             for mention in mentions:
                 if self.resolve_abbreviations and Doc.has_extension("abbreviations"):
                     if mention._.long_form is not None:
-                        mention._.kb_ents = kb_ents_per_mention_string[
-                            mention._.long_form.text
-                        ]
-                        # mention_text = " ".join([tok.lemma_ for tok in mention._.long_form])
+                        mention_text = " ".join(
+                            [tok.lemma_ for tok in mention._.long_form]
+                        )
+                        mention._.kb_ents = kb_ents_per_mention_string[mention_text]
+                        # mention._.kb_ents = kb_ents_per_mention_string[
+                        #     mention._.long_form.text
+                        # ]
                 else:
-                    # mention_text = " ".join([tok.lemma_ for tok in mention])
-                    mention._.kb_ents = kb_ents_per_mention_string[mention.text]
-                # mention._.kb_ents = kb_ents_per_mention_string[mention_text] #mention.text]
+                    mention_text = " ".join([tok.lemma_ for tok in mention])
+                    mention._.kb_ents = kb_ents_per_mention_string[mention_text]
+                    # mention._.kb_ents = kb_ents_per_mention_string[mention.text]
+
                 if mention._.kb_ents:
                     new_ents.append(mention)
 

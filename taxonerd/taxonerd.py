@@ -7,6 +7,7 @@ import sys
 import logging
 from spacy.tokens import Span
 from taxonerd.extractor import TextExtractor
+import pathlib
 
 
 class TaxoNERD:
@@ -41,6 +42,7 @@ class TaxoNERD:
         model,
         exclude=[],
         linker=None,
+        neighbours=10,
         threshold=0.7,
     ):
         self.nlp = spacy.load(model, exclude=exclude)
@@ -73,12 +75,12 @@ class TaxoNERD:
                     "linker_name": linker,
                     "resolve_abbreviations": "taxo_abbrev_detector" not in exclude,
                     "filter_for_definitions": False,
-                    "k": 1,
+                    "k": neighbours,
                     "threshold": threshold,
                 },
-                name=f"{linker}_linker",
+                name="taxon_linker",
             )
-            self.linker = linker if f"{linker}_linker" in self.nlp.pipe_names else None
+            self.linker = "taxon_linker" in self.nlp.pipe_names
         if self.verbose:
             self.logger.info(
                 "Loaded model {}-{}".format(
@@ -127,7 +129,6 @@ class TaxoNERD:
                 "\n" not in text[ent.start_char : ent.end_char].strip("\n")
                 and (ent.label_ in ["LIVB"])
                 and (ent._.kb_ents if self.linker else True)
-                # and ((ent not in doc._.abbreviations) if self.abbrev else True)
             )
 
         doc = self.nlp(text)

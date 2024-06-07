@@ -6,7 +6,7 @@ from taxonerd import TaxoNERD
 def taxonerd():
     taxonerd = TaxoNERD()
     exclude = []
-    taxonerd.load(model="en_core_eco_md", exclude=exclude, linker="taxref")
+    taxonerd.load(model="en_ner_eco_md", exclude=exclude, linker="taxref")
     return taxonerd
 
 

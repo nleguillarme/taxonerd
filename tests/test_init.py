@@ -22,7 +22,7 @@ def test_load_minimal():
         "pysbd_sentencizer",
         "taxo_abbrev_detector",
     ]
-    taxonerd.load(model="en_core_eco_md", exclude=exclude)
+    taxonerd.load(model="en_ner_eco_md", exclude=exclude)
     assert taxonerd.nlp != None
     assert taxonerd.nlp.pipe_names == ["tok2vec", "ner"]
 
@@ -30,7 +30,7 @@ def test_load_minimal():
 def test_load_full():
     taxonerd = TaxoNERD()
     exclude = []
-    taxonerd.load(model="en_core_eco_md", exclude=exclude)
+    taxonerd.load(model="en_ner_eco_md", exclude=exclude)
     assert taxonerd.nlp != None
     assert taxonerd.nlp.pipe_names == [
         "tok2vec",
@@ -49,15 +49,15 @@ def test_load_linker():
     exclude = [
         "tagger",
         "attribute_ruler",
-        "lemmatizer",
         "parser",
         "pysbd_sentencizer",
         "taxo_abbrev_detector",
     ]
-    taxonerd.load(model="en_core_eco_md", exclude=exclude, linker="taxref")
+    taxonerd.load(model="en_ner_eco_md", exclude=exclude, linker="taxref")
     assert taxonerd.nlp != None
     assert taxonerd.nlp.pipe_names == [
         "tok2vec",
+        "lemmatizer",
         "ner",
-        "taxref_linker",
+        "taxon_linker",
     ]

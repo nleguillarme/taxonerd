@@ -66,16 +66,19 @@ class KnowledgeBase:
         db_path = os.path.splitext(file_path)[0] + ".db"
 
         if file_path.endswith("jsonl"):
-            raw = (json.loads(line) for line in open(cached_path(file_path)))
+            raw = (
+                json.loads(line)
+                for line in open(cached_path(file_path), encoding="utf-8")
+            )
         else:
-            raw = json.load(open(cached_path(file_path)))
+            raw = json.load(open(cached_path(file_path), encoding="utf-8"))
 
         alias_to_cuis: Dict[str, Set[str]] = defaultdict(set)
         self.cui_to_entity: Dict[str, Entity] = {}
 
         for concept in raw:
             unique_aliases = set(concept["aliases"])
-            unique_aliases.add(concept["canonical_name"])
+            # unique_aliases.add(concept["canonical_name"])
             for alias in unique_aliases:
                 alias_to_cuis[alias].add(concept["concept_id"])
             self.cui_to_entity[concept["concept_id"]] = Entity(**concept)
@@ -116,7 +119,7 @@ class KnowledgeBase:
             )
         except Exception as e:
             print(e, alias)
-        return [self.prefix + c.fetchone()[0].strip("{}")]
+        return [self.prefix + ":" + c.fetchone()[0].strip("{}")]
 
     def get_cuis_from_aliases(self, aliases):
         c = self.conn.cursor()
@@ -130,34 +133,44 @@ class KnowledgeBase:
         )
         mentions_to_concepts: Dict[str, List[str]] = defaultdict(list)
         for x in c.fetchall():
-            concept_ids = [self.prefix + t.strip() for t in x[1].strip("{}").split(",")]
+            concept_ids = [
+                self.prefix + ":" + t.strip() for t in x[1].strip("{}").split(",")
+            ]
             mentions_to_concepts[x[0]].extend(concept_ids)
         return mentions_to_concepts
 
 
 class KnowledgeBaseFactory:
-    def get_kb(self, name=None):
-        if name == "gbif_backbone":
-            return GbifKnowledgeBase()
-        elif name == "taxref":
-            return TaxRefKnowledgeBase()
-        elif name == "ncbi_taxonomy":
-            return NCBIKnowledgeBase()
-        elif name == "ncbi_lite":
-            return NCBILiteKnowledgeBase()
+
+    def __init__(self):
+        self.factory = {
+            "gbif_backbone": GbifKnowledgeBase,
+            "taxref": TaxRefKnowledgeBase,
+            "ncbi_taxonomy": NCBIKnowledgeBase,
+            # "ncbi_lite": NCBILiteKnowledgeBase(),
+        }
+
+    def get_kb(self, name_or_path=None):
+        if name_or_path in self.factory:
+            return self.factory[name_or_path]()
         else:
-            logger.info(f"Cannot initialize KnowledgeBase with name {name}")
-            return None
+            path = Path(name_or_path)
+            if path.exists() and path.is_dir():
+                kb_file = list(path.glob("*.jsonl"))
+                if len(kb_file) == 1:
+                    return KnowledgeBase(file_path=kb_file[0], prefix=path.name.upper())
+        logger.info(f"Cannot initialize KnowledgeBase with name or path {name_or_path}")
+        return None
 
 
 class GbifKnowledgeBase(KnowledgeBase):
     def __init__(
         self,
         file_path=(
-            "https://cloud.univ-grenoble-alpes.fr/index.php/s/dm8attDW7EsdBpp/download",
-            "gbif_backbone_2019-09-06.jsonl",
+            "https://cloud.univ-grenoble-alpes.fr/s/jpzMLYDLkG7ywSH/download",
+            "gbif_backbone/gbif_backbone_20230828.jsonl",
         ),
-        prefix="GBIF:",
+        prefix="GBIF",
     ):
         super().__init__(file_path, prefix)
 
@@ -166,10 +179,10 @@ class TaxRefKnowledgeBase(KnowledgeBase):
     def __init__(
         self,
         file_path=(
-            "https://cloud.univ-grenoble-alpes.fr/index.php/s/B48pMS5DmjiiiAJ/download",
-            "taxref_v13.jsonl",
+            "https://cloud.univ-grenoble-alpes.fr/s/jPCMbGoDN8Pi6QP/download",
+            "taxref/taxref_v17.jsonl",
         ),
-        prefix="TAXREF:",
+        prefix="TAXREF",
     ):
         super().__init__(file_path, prefix)
 
@@ -178,21 +191,21 @@ class NCBIKnowledgeBase(KnowledgeBase):
     def __init__(
         self,
         file_path=(
-            "https://cloud.univ-grenoble-alpes.fr/index.php/s/tzitebfeCyrKgLa/download",
-            "ncbi_taxonomy_2021_03_25.jsonl",
+            "https://cloud.univ-grenoble-alpes.fr/s/Sg487BjiSYkJqtC/download",
+            "ncbi_taxonomy/ncbi_taxonomy_20240522.jsonl",
         ),
-        prefix="NCBI:",
+        prefix="NCBI",
     ):
         super().__init__(file_path, prefix)
 
 
-class NCBILiteKnowledgeBase(KnowledgeBase):
-    def __init__(
-        self,
-        file_path=(
-            "https://cloud.univ-grenoble-alpes.fr/index.php/s/cAmmpE6FxDxNBHj/download",
-            "ncbi_lite_2021_03_25.jsonl",
-        ),
-        prefix="NCBI:",
-    ):
-        super().__init__(file_path, prefix)
+# class NCBILiteKnowledgeBase(KnowledgeBase):
+#     def __init__(
+#         self,
+#         file_path=(
+#             "https://cloud.univ-grenoble-alpes.fr/index.php/s/cAmmpE6FxDxNBHj/download",
+#             "ncbi_lite_2021_03_25.jsonl",
+#         ),
+#         prefix="NCBI",
+#     ):
+#         super().__init__(file_path, prefix)

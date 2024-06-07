@@ -4,6 +4,7 @@ Sys.setenv(TOKENIZERS_PARALLELISM="false")
 taxonerd <- NULL
 
 .onLoad <- function(libname, pkgname) {
+  #use_python("/usr/bin/python3.10", required = TRUE)
   envname = "r-taxonerd"
   if (!reticulate::virtualenv_exists(envname = "r-taxonerd")) {
     reticulate::virtualenv_create(envname)
@@ -24,7 +25,8 @@ install.taxonerd <- function(cuda.version=NULL) {
   if (!is.null(cuda.version)) {
     extras = paste("[",cuda.version,"]",sep="")
   }
-  reticulate::virtualenv_install("r-taxonerd", packages = paste("taxonerd",extras,"==",version,sep=""), ignore_installed = TRUE)
+  #reticulate::virtualenv_install("r-taxonerd", packages = paste("taxonerd",extras,"==",version,sep=""), ignore_installed = TRUE)
+  reticulate::virtualenv_install("r-taxonerd", packages = "/home/leguilln/workspace/nlp/taxonerd/dist/taxonerd-1.5.2.tar.gz", ignore_installed = TRUE)
 }
 
 #' Import the TaxoNERD python package.

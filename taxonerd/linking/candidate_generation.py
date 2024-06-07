@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple, NamedTuple, Type
+from typing import List, Dict, Tuple, NamedTuple, Union
 from os import path
 import json
 import datetime
@@ -14,6 +14,8 @@ from nmslib.dist import FloatIndex
 from .file_cache import cached_path
 from .linking_utils import KnowledgeBase, KnowledgeBaseFactory
 import logging
+
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -31,101 +33,127 @@ class LinkerPaths(NamedTuple):
         Path to the indices mapping concepts to aliases in the index.
     """
 
-    ann_index: str | Tuple[str, str]
-    tfidf_vectorizer: str | Tuple[str, str]
-    tfidf_vectors: str | Tuple[str, str]
-    concept_aliases_list: str | Tuple[str, str]
-    # kb: str | Path = None
-    # prefix: str = None
+    ann_index: Union[str, Tuple[str, str]]
+    tfidf_vectorizer: Union[str, Tuple[str, str]]
+    tfidf_vectors: Union[str, Tuple[str, str]]
+    concept_aliases_list: Union[str, Tuple[str, str]]
 
 
 GbifLinkerPaths = LinkerPaths(
     ann_index=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/TrgYQDqPsasW6o9/download",
-        "gbif_backbone_2019_09_06/nmslib_index.bin",
+        "https://cloud.univ-grenoble-alpes.fr/s/EKFq4Ar4Sx5niqT/download",
+        "gbif_backbone/nmslib_index.bin",
     ),  # nmslib_index.bin
     tfidf_vectorizer=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/2gi6knSb3NxkP3x/download",
-        "gbif_backbone_2019_09_06/tfidf_vectorizer.joblib",
+        "https://cloud.univ-grenoble-alpes.fr/s/GApZi44oNgComqz/download",
+        "gbif_backbone/tfidf_vectorizer.joblib",
     ),  # tfidf_vectorizer.joblib
     tfidf_vectors=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/rNbdMwCpZGTfMJN/download",
-        "gbif_backbone_2019_09_06/tfidf_vectors_sparse.npz",
+        "https://cloud.univ-grenoble-alpes.fr/s/NrgdgrCNWcs4kjD/download",
+        "gbif_backbone/tfidf_vectors_sparse.npz",
     ),  # tfidf_vectors_sparse.npz
     concept_aliases_list=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/P2bnEdPk8HJMjkE/download",
-        "gbif_backbone_2019_09_06/concept_aliases.json",
+        "https://cloud.univ-grenoble-alpes.fr/s/JgSnpYqHG8TtKp8/download",
+        "gbif_backbone/concept_aliases.json",
     ),  # concept_aliases.json
 )
 
 TaxRefLinkerPaths = LinkerPaths(
     ann_index=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/CxwtGT4qNNNCcPc/download",
-        "taxref_v13/nmslib_index.bin",
+        "https://cloud.univ-grenoble-alpes.fr/s/kG2YxgwaSxLmaPe/download",
+        "taxref/nmslib_index.bin",
     ),  # nmslib_index.bin
     tfidf_vectorizer=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/8z2iYsNYYw58Q2i/download",
-        "taxref_v13/tfidf_vectorizer.joblib",
+        "https://cloud.univ-grenoble-alpes.fr/s/LSjEMXjAEqceHts/download",
+        "taxref/tfidf_vectorizer.joblib",
     ),  # tfidf_vectorizer.joblib
     tfidf_vectors=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/ekKWnQoTbKQYxQx/download",
-        "taxref_v13/tfidf_vectors_sparse.npz",
+        "https://cloud.univ-grenoble-alpes.fr/s/B3yc7ik7YLwX82J/download",
+        "taxref/tfidf_vectors_sparse.npz",
     ),  # tfidf_vectors_sparse.npz
     concept_aliases_list=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/LzcdQF4Zs8xqyZ8/download",
-        "taxref_v13/concept_aliases.json",
+        "https://cloud.univ-grenoble-alpes.fr/s/t3RWoexSAi3imkw/download",
+        "taxref/concept_aliases.json",
     ),  # concept_aliases.json
 )
 
 NCBILinkerPaths = LinkerPaths(
     ann_index=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/KFTJGLTaybAtXRr/download",
+        "https://cloud.univ-grenoble-alpes.fr/s/Da5ZmfEsz4akfDA/download",
         "ncbi_taxonomy/nmslib_index.bin",
     ),  # nmslib_index.bin
     tfidf_vectorizer=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/7J7PDeLm9nqDfSW/download",
+        "https://cloud.univ-grenoble-alpes.fr/s/oYfWWLnpfoAPb46/download",
         "ncbi_taxonomy/tfidf_vectorizer.joblib",
     ),  # tfidf_vectorizer.joblib
     tfidf_vectors=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/qs4Z3spF9fXyxcD/download",
+        "https://cloud.univ-grenoble-alpes.fr/s/4enMeBP8rDAPoYZ/download",
         "ncbi_taxonomy/tfidf_vectors_sparse.npz",
     ),  # tfidf_vectors_sparse.npz
     concept_aliases_list=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/4qXgd8EoJRBFmbw/download",
+        "https://cloud.univ-grenoble-alpes.fr/s/oKoTj89jMcKf5bJ/download",
         "ncbi_taxonomy/concept_aliases.json",
     ),  # concept_aliases.json
 )
 
-NCBILiteLinkerPaths = LinkerPaths(
-    ann_index=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/kB7AE44jy42qZec/download",
-        "/ncbi_taxonomy_lite/nmslib_index.bin",
-    ),  # nmslib_index.bin
-    tfidf_vectorizer=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/jLwQgt2eD7P3PDo/download",
-        "/ncbi_taxonomy_lite/tfidf_vectorizer.joblib",
-    ),  # tfidf_vectorizer.joblib
-    tfidf_vectors=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/enK6yZepTiGijgd/download",
-        "/ncbi_taxonomy_lite/tfidf_vectors_sparse.npz",
-    ),  # tfidf_vectors_sparse.npz
-    concept_aliases_list=(
-        "https://cloud.univ-grenoble-alpes.fr/index.php/s/LfjHkYcHAWK3kKS/download",
-        "ncbi_taxonomy_lite/concept_aliases.json",
-    ),  # concept_aliases.json
-)
+# NCBILiteLinkerPaths = LinkerPaths(
+#     ann_index=(
+#         "https://cloud.univ-grenoble-alpes.fr/index.php/s/kB7AE44jy42qZec/download",
+#         "/ncbi_taxonomy_lite/nmslib_index.bin",
+#     ),  # nmslib_index.bin
+#     tfidf_vectorizer=(
+#         "https://cloud.univ-grenoble-alpes.fr/index.php/s/jLwQgt2eD7P3PDo/download",
+#         "/ncbi_taxonomy_lite/tfidf_vectorizer.joblib",
+#     ),  # tfidf_vectorizer.joblib
+#     tfidf_vectors=(
+#         "https://cloud.univ-grenoble-alpes.fr/index.php/s/enK6yZepTiGijgd/download",
+#         "/ncbi_taxonomy_lite/tfidf_vectors_sparse.npz",
+#     ),  # tfidf_vectors_sparse.npz
+#     concept_aliases_list=(
+#         "https://cloud.univ-grenoble-alpes.fr/index.php/s/LfjHkYcHAWK3kKS/download",
+#         "ncbi_taxonomy_lite/concept_aliases.json",
+#     ),  # concept_aliases.json
+# )
 
-DEFAULT_PATHS: Dict[str, LinkerPaths] = {
-    "gbif_backbone": GbifLinkerPaths,
-    "taxref": TaxRefLinkerPaths,
-    "ncbi_taxonomy": NCBILinkerPaths,
-    "ncbi_lite": NCBILiteLinkerPaths,
-}
+
+class LinkerPathsFactory:
+    def __init__(self):
+        self.factory = {
+            "gbif_backbone": GbifLinkerPaths,
+            "taxref": TaxRefLinkerPaths,
+            "ncbi_taxonomy": NCBILinkerPaths,
+            # "ncbi_lite": NCBILiteLinkerPaths,
+        }
+
+    def get_linker_paths(self, name_or_path=None):
+        if name_or_path in self.factory:
+            return self.factory[name_or_path]
+        else:
+            path = Path(name_or_path)
+            if path.exists() and path.is_dir():
+                ann_index = path / "nmslib_index.bin"
+                tfidf_vectorizer = path / "tfidf_vectorizer.joblib"
+                tfidf_vectors = path / "tfidf_vectors_sparse.npz"
+                concept_aliases_list = path / "concept_aliases.json"
+                if (
+                    ann_index.exists()
+                    and tfidf_vectorizer.exists()
+                    and tfidf_vectors.exists()
+                    and concept_aliases_list.exists()
+                ):
+                    return LinkerPaths(
+                        ann_index=ann_index,
+                        tfidf_vectorizer=tfidf_vectorizer,
+                        tfidf_vectors=tfidf_vectors,
+                        concept_aliases_list=concept_aliases_list,
+                    )
+        logger.info(f"Cannot initialize LinkerPaths with name or path {name_or_path}")
+        return None
 
 
 class MentionCandidate(NamedTuple):
     """
-    A data class representiget_from_cacheng a candidate entity that a mention may be linked to.
+    A data class representing a candidate entity that a mention may be linked to.
 
     Parameters
     ----------
@@ -232,7 +260,6 @@ class CandidateGenerator:
         verbose: bool = False,
         ef_search: int = 200,
         name_or_path: str = None,
-        # path: Path = None,
     ) -> None:
         if name_or_path is not None and any(
             [ann_index, tfidf_vectorizer, ann_concept_aliases_list]  # , kb]
@@ -241,26 +268,10 @@ class CandidateGenerator:
                 "You cannot pass both a name argument and other constuctor arguments."
             )
 
-        if name_or_path:
-            self.kb = kb or KnowledgeBaseFactory().get_kb(name_or_path)
-            if not self.kb:
-                if path.exists(name_or_path):
-                    with open(name_or_path) as f:
-                        linker_cfg = json.load(f)
-                    name = linker_cfg["name"]
-                    self.kb = KnowledgeBase(**linker_cfg["kb"])
-                    linker_paths = LinkerPaths(**linker_cfg["linker_paths"])
-                else:
-                    raise ValueError(
-                        f"{name_or_path} is not a valid linker name nor a valid path to a linker config."
-                    )
-            else:
-                name = name_or_path
-                linker_paths = DEFAULT_PATHS.get(name_or_path)
-        else:
-            name = "gbif_backbone"
-            self.kb = KnowledgeBaseFactory().get_kb(name)
-            linker_paths = DEFAULT_PATHS.get(name, GbifLinkerPaths)
+        name_or_path = name_or_path or "gbif_backbone"
+        logger.info(f"Initialize LinkerPaths with name or path {name_or_path}")
+        self.kb = kb or KnowledgeBaseFactory().get_kb(name_or_path)
+        linker_paths = LinkerPathsFactory().get_linker_paths(name_or_path)
 
         self.ann_index = ann_index or load_approximate_nearest_neighbours_index(
             linker_paths=linker_paths, ef_search=ef_search
@@ -403,16 +414,6 @@ class CandidateGenerator:
                     concept_to_similarities[concept_id].append(
                         mention_to_similarity[mention]
                     )
-
-            # for neighbor_index, distance in zip(neighbors, distances):
-            #     mention = self.ann_concept_aliases_list[neighbor_index]
-            #
-            #     concepts_for_mention = self.kb.get_cuis_from_alias(
-            #         mention
-            #     )  # alias_to_cuis[mention]
-            #     for concept_id in concepts_for_mention:
-            #         concept_to_mentions[concept_id].append(mention)
-            #         concept_to_similarities[concept_id].append(1.0 - distance)
 
             mention_candidates = [
                 MentionCandidate(concept, mentions, concept_to_similarities[concept])
