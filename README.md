@@ -74,8 +74,8 @@ For GPU support, find your CUDA version using `nvcc --version` and add the versi
 
 To download the models:
 
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_md-1.0.2.tar.gz
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_biobert-1.0.2.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/en_ner_eco_md-1.1.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/en_ner_eco_biobert-1.1.0.tar.gz
     $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_md-1.0.0.tar.gz
     $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_biobert-1.0.0.tar.gz
 
