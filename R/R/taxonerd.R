@@ -19,7 +19,7 @@ taxonerd <- NULL
 #' @export install.taxonerd
 #' @import reticulate
 install.taxonerd <- function(cuda.version=NULL) {
-  version = "1.5.3"
+  version = "1.5.4"
   # create a new environment 
   extras = ""
   if (!is.null(cuda.version)) {
@@ -44,7 +44,7 @@ import.taxonerd <- function() {
 #' @export install.model
 #' @import reticulate
 install.model <- function(model, version) {
-  url = sprintf("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/%s-%s.tar.gz", model, version)
+  url = sprintf("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/%s-%s.tar.gz", model, version)
   virtualenv_install("r-taxonerd", packages = url, ignore_installed = TRUE)
 }
 

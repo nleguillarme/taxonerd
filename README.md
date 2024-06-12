@@ -32,16 +32,18 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 
 
 ``` console
-taxonerd ask -m en_core_eco_weak_biobert -f ./tests/test_data/test_jpg/test.jpg 
-T0	LIVB 180 192	Harbour seal
-T1	LIVB 194 208	Phoca vitulina
-T2	LIVB 361 375	Pacific salmon
-T3	LIVB 377 394	Oncorhynchus spp.
-T4	LIVB 455 467	harbour seal
-T5	LIVB 714 718	seal
-T6	LIVB 793 805	harbour seal
-T7	LIVB 1127 1133	fishes
-T8	LIVB 1137 1148	cephalopods
+taxonerd ask -m en_ner_eco_biobert_weak -f ./tests/test_data/test_jpg/test.jpg 
+T0	LIVB 158 165	species
+T1	LIVB 180 192	Harbour seal
+T2	LIVB 194 208	Phoca vitulina
+T3	LIVB 361 375	Pacific salmon
+T4	LIVB 377 394	Oncorhynchus spp.
+T5	LIVB 455 467	harbour seal
+T6	LIVB 663 670	species
+T7	LIVB 793 805	harbour seal
+T8	LIVB 1114 1121	species
+T9	LIVB 1127 1133	fishes
+T10	LIVB 1137 1148	cephalopods
 ```
 
 
@@ -49,10 +51,10 @@ T8	LIVB 1137 1148	cephalopods
 
 | Model               |      Description      |  Install URL |
 |---------------------|-------------|------:|
-| en_ner_eco_md       | A spaCy NER model with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)), fine-tuned on an ecological corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/en_ner_eco_md-1.1.0.tar.gz)      |
-| en_ner_eco_biobert | A spaCy NER model with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on an ecological corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/en_ner_eco_biobert-1.1.0.tar.gz) |
-| en_core_eco_weak_md | A spaCy NER model with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)), fine-tuned on a silver standard corpus (for improved performance on vernacular names). **Only available for taxonerd<1.5.3.** | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_md-1.0.0.tar.gz)    |
-| en_core_eco_weak_biobert | A spaCy NER model with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on a silver standard corpus (for improved performance on vernacular names). **Only available for taxonerd<1.5.3.** | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_biobert-1.0.0.tar.gz) |
+| en_ner_eco_md       | A spaCy NER model with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)), fine-tuned on an ecological corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/en_ner_eco_md-1.1.0.tar.gz)      |
+| en_ner_eco_biobert | A spaCy NER model with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on an ecological corpus. | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/en_ner_eco_biobert-1.1.0.tar.gz) |
+| en_core_eco_weak_md | A spaCy NER model with 50k word vectors (taken from [en_core_sci_md](https://allenai.github.io/scispacy/)), fine-tuned on a silver standard corpus (for improved performance on vernacular names). | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/en_ner_eco_md_weak-1.1.0.tar.gz)    |
+| en_core_eco_weak_biobert | A spaCy NER model with dmis-lab/biobert-v1.1 as the transformer model, fine-tuned on a silver standard corpus (for improved performance on vernacular names). | [Download](https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/en_ner_eco_biobert_weak-1.1.0.tar.gz) |
 
 ### What model should I choose ?
 
@@ -74,12 +76,12 @@ For GPU support, find your CUDA version using `nvcc --version` and add the versi
 
 To download the models:
 
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/en_ner_eco_md-1.1.0.tar.gz
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/en_ner_eco_biobert-1.1.0.tar.gz
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_md-1.0.0.tar.gz
-    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.0/en_core_eco_weak_biobert-1.0.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/en_ner_eco_md-1.1.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/en_ner_eco_biobert-1.1.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/en_ner_eco_md_weak-1.1.0.tar.gz
+    $ pip install https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/en_ner_eco_biobert_weak-1.1.0.tar.gz
 
-Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.5.3), there are 3 supported linkers:
+Entity linker files are downloaded and cached the first time the linker is used. This may take some time, but it should only be done once. Currently (v1.5.4), there are 3 supported linkers:
 
 * gbif_backbone: Links to [GBIF Backbone Taxonomy (2023-08-28)](https://www.gbif.org/fr/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c) (~9.5M names for ~3.5M taxa).
 * taxref: Links to [TAXREF (v17)](https://inpn.mnhn.fr/telechargement/referentielEspece/taxref/17.0/menu) (~1.2M names for ~267k taxa).
@@ -88,7 +90,7 @@ Entity linker files are downloaded and cached the first time the linker is used.
 
 ### TaxoNERD for R
 
-    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.3/taxonerd_for_R_1.5.3.tar.gz", repos=NULL)
+    > install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/taxonerd_for_R_1.5.4.tar.gz", repos=NULL)
     > vignette("taxonerd") # See vignette for more information on how to install and use TaxoNERD for R
 
 ## Usage
@@ -245,7 +247,7 @@ T11  LIVB 3481 3485               deer                       [(TAXREF:186210, de
 ``` python
 >>> from taxonerd import TaxoNERD
 >>> taxonerd = TaxoNERD(prefer_gpu=True)
->>> nlp = taxonerd.load(model="en_core_eco_biobert")
+>>> nlp = taxonerd.load(model="en_ner_eco_biobert")
 >>> doc = nlp("Brown bears (Ursus arctos), which are widely distributed throughout the northern hemisphere, are recognised as opportunistic omnivore")
 >>> doc.ents
 (Brown bears, Ursus arctos)

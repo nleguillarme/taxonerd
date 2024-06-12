@@ -1,6 +1,6 @@
 Package: taxonerd
 Title: Taxonomic Named Entity Recognition using Deep Models
-Version: 1.5.3
+Version: 1.5.4
 Authors@R: person("Nicolas", "Le Guillarme", email = "nicolas.leguillarme@univ-grenoble-alpes.fr",
                   role = c("aut", "cre"), comment = c(ORCID = "0000-0003-4559-7579"))
 Description: TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodiversity literature.
@@ -17,7 +17,7 @@ License: MIT
 LazyData: true
 Imports:
   reticulate
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Suggests:
     rmarkdown,
     knitr,

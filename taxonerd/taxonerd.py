@@ -65,9 +65,9 @@ class TaxoNERD:
                     "Lemmatizer is needed for entity linking. Make sure lemmatizer is not excluded from the pipeline"
                 )
 
-            from taxonerd.linking.linking_utils import KnowledgeBaseFactory
-            from taxonerd.linking.candidate_generation import CandidateGenerator
-            from taxonerd.linking.linking import EntityLinker
+            import taxonerd.linking.linking
+
+            self.nlp.add_pipe("lower_case_lemmas", after="lemmatizer")
 
             self.nlp.add_pipe(
                 "taxo_linker",

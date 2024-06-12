@@ -5,6 +5,13 @@ from taxonerd.linking.candidate_generation import CandidateGenerator, LinkerPath
 from typing import Optional
 
 
+@Language.component("lower_case_lemmas")
+def lower_case_lemmas(doc):
+    for token in doc:
+        token.lemma_ = token.lemma_.lower()
+    return doc
+
+
 @Language.factory("taxo_linker")
 class EntityLinker:
     """

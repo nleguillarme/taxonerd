@@ -29,7 +29,7 @@ taxonerd is an R package that provides deep neural network models for recognizin
 You can install the released version of taxonerd from GitHub with:
 
 ```{r eval=FALSE}
-install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.2/taxonerd_for_R_1.5.2.tar.gz", repos=NULL)
+install.packages("https://github.com/nleguillarme/taxonerd/releases/download/v1.5.4/taxonerd_for_R_1.5.4.tar.gz", repos=NULL)
 ```
 
 Check for available releases on the project's GitHub page : https://github.com/nleguillarme/taxonerd
@@ -47,10 +47,10 @@ This will install the last release of TaxoNERD in a virtual environment named r-
 nvcc --version
 ```
 
-TaxoNERD supports CUDA versions 11.0 to 11.6. To install TaxoNERD for CUDA 11.3 :
+TaxoNERD supports CUDA versions 11+ and 12+. To install TaxoNERD for CUDA 12.1 :
 
 ```{r eval=FALSE}
-install.taxonerd(cuda.version="cuda113")
+install.taxonerd(cuda.version="cuda12x")
 ```
 
 TaxoNERD is correctly installed. You are ready to go.
@@ -89,12 +89,12 @@ for (doi in res$data$id) {
 
 The corpus.dir directory now contains a set of 10 documents in PDf format.
 
-The next step is to initialize the taxonomic entity recognition engine. For this, we will need a taxonomic entity recognition model. TaxoNERD provides two model architectures : md - a smaller architecture designed for speed - and biobert - a more complex architecture with higher accuracy. Each architecture comes in two flavors: the en_core_eco_<md, biobert> models were fine-tuned on a gold standard corpus, while the en_core_eco_weak_<md, biobert> were fine-tuned on a silver standard corpus.
+The next step is to initialize the taxonomic entity recognition engine. For this, we will need a taxonomic entity recognition model. TaxoNERD provides two model architectures : md - a smaller architecture designed for speed - and biobert - a more complex architecture with higher accuracy. Each architecture comes in two flavors: the en_ner_eco_<md, biobert> models were fine-tuned on a gold standard corpus, while the en_core_eco_weak_<md, biobert> were fine-tuned on a silver standard corpus.
 
 Note that we strongly recommend running the biobert architecture on a GPU, as it may be prohibitively slow on CPU. Let's download and install the en_core_eco_weak_md model:
 
 ```{r results='hide'}
-install.model(model="en_core_eco_weak_md", version="1.0.0")
+install.model(model="en_core_eco_weak_md", version="1.1.0")
 ```
 
 In this example, we will use the en_core_eco_weak_md model with the abbreviation detector and sentencizer enabled, and we will ask the engine to link detected taxon mentions to a subset of the NCBI Taxonomy. Entity linking relies on a approximate nearest neighbors search and uses a minimum similarity threshold to filter out entities whose name is not similar enough to the textual mention. Here, we will set the minimum similarity threshold to 0.85.
