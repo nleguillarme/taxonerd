@@ -33,17 +33,14 @@ TaxoNERD is a domain-specific tool for recognizing taxon mentions in the biodive
 
 ``` console
 taxonerd ask -m en_ner_eco_biobert_weak -f ./tests/test_data/test_jpg/test.jpg 
-T0	LIVB 158 165	species
-T1	LIVB 180 192	Harbour seal
-T2	LIVB 194 208	Phoca vitulina
-T3	LIVB 361 375	Pacific salmon
-T4	LIVB 377 394	Oncorhynchus spp.
-T5	LIVB 455 467	harbour seal
-T6	LIVB 663 670	species
-T7	LIVB 793 805	harbour seal
-T8	LIVB 1114 1121	species
-T9	LIVB 1127 1133	fishes
-T10	LIVB 1137 1148	cephalopods
+T0	LIVB 180 192	Harbour seal
+T1	LIVB 194 208	Phoca vitulina
+T2	LIVB 361 375	Pacific salmon
+T3	LIVB 377 394	Oncorhynchus spp.
+T4	LIVB 455 467	harbour seal
+T5	LIVB 793 805	harbour seal
+T6	LIVB 1127 1133	fishes
+T7	LIVB 1137 1148	cephalopods
 ```
 
 
