@@ -12,3 +12,6 @@ build/
 .R*
 *.Rcheck
 taxonerd-*
+
+uv.*
+.*
