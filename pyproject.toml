@@ -1,3 +1,72 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "taxonerd"
+version = "1.5.5"
+description = "A Python package and CLI tool based on spaCy for detecting mentions of taxonomic entities in text"
+readme = { file = "README.md", content-type = "text/markdown" }
+authors = [
+    { email = "nicolas.leguillarme@univ-grenoble-alpes.fr" }
+]
+license = { text = "MIT License" }
+keywords = ["spacy", "ner", "transformers", "deep neural networks", "ecology", "evolution"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "click>=7.1.1,<7.2.0",
+    "pandas>=0.24.2",
+    "scispacy==0.6.2",
+    "spacy==3.8.7",
+    "spacy-transformers>=1.3.4",
+    "textract-py3>=2.1.1",
+    "scikit-learn>=1.5.0",
+#    "numpy>=2.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/nleguillarme/taxonerd"
+"Bug Tracker" = "https://github.com/nleguillarme/taxonerd/issues"
+
+[project.optional-dependencies]
+cuda11x = [
+    "cupy-cuda11x>=11.0.0,<13.0.0"
+]
+cuda12x = [
+    "cupy-cuda12x>=11.5.0,<13.0.0"
+]
+cuda13x = [
+    "cupy-cuda13x>=13.6.0, <14.0.0"
+]
+
+[project.scripts]
+taxonerd = "taxonerd.cli:main"
+
+[tool.setuptools]
+zip-safe = false
+include-package-data = false
+
+[tool.setuptools.packages.find]
+exclude = [
+    "dev*",
+    "eval*",
+    "models*",
+    "R*",
+    "taxonerd-*",
+    "test*",
+    "configs*"
+]
+
+[tool.pytest.ini_options]
+addopts = "--ignore=dev --ignore=eval --ignore=models --ignore=R"
+

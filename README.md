@@ -69,7 +69,7 @@ Installing the package from pip will automatically install all dependencies, inc
 
     $ pip install taxonerd
 
-For GPU support, find your CUDA version using `nvcc --version` and add the version in brackets, e.g. `pip install taxonerd[cuda12x]` for CUDA 12.1. See [setup.cfg](setup.cfg) for supported CUDA versions.
+For GPU support, find your CUDA version using `nvcc --version` and add the version in brackets, e.g. `pip install taxonerd[cuda12x]` for CUDA 12.1. See [pyproject.toml](pyproject.toml) for supported CUDA versions.
 
 To download the models:
 
