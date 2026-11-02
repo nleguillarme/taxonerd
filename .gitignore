@@ -6,6 +6,8 @@ dist/
 build/
 *.egg-info/
 
+.idea/
+.venv/
 .tox/
 .coverage
 .Rproj.user

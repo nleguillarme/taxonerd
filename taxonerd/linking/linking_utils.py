@@ -3,9 +3,16 @@ import json
 from pathlib import Path
 from collections import defaultdict
 import sqlite3
+
 from .file_cache import cached_path
+from scispacy.umls_semantic_type_tree import (
+    UmlsSemanticTypeTree,
+    construct_umls_tree_from_tsv,
+)
+
 from urllib.request import pathname2url
 import os
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -18,6 +25,7 @@ def escape_quotes(alias):
 
 
 class Entity(NamedTuple):
+
     concept_id: str
     canonical_name: str
     aliases: List[str]
@@ -25,6 +33,7 @@ class Entity(NamedTuple):
     definition: Optional[str] = None
 
     def __repr__(self):
+
         rep = ""
         num_aliases = len(self.aliases)
         rep = rep + f"CUI: {self.concept_id}, Name: {self.canonical_name}\n"
@@ -63,27 +72,10 @@ class KnowledgeBase:
             )
 
         file_path = cached_path(file_path)
+        if type(file_path) is tuple:
+            user_friendly_name = file_path[1]
+            file_path = file_path[0]
         db_path = os.path.splitext(file_path)[0] + ".db"
-
-        if file_path.endswith("jsonl"):
-            raw = (
-                json.loads(line)
-                for line in open(cached_path(file_path), encoding="utf-8")
-            )
-        else:
-            raw = json.load(open(cached_path(file_path), encoding="utf-8"))
-
-        alias_to_cuis: Dict[str, Set[str]] = defaultdict(set)
-        self.cui_to_entity: Dict[str, Entity] = {}
-
-        for concept in raw:
-            unique_aliases = set(concept["aliases"])
-            # unique_aliases.add(concept["canonical_name"])
-            for alias in unique_aliases:
-                alias_to_cuis[alias].add(concept["concept_id"])
-            self.cui_to_entity[concept["concept_id"]] = Entity(**concept)
-
-        self.alias_to_cuis: Dict[str, Set[str]] = {**alias_to_cuis}
 
         if not os.path.exists(db_path):
             logger.info(
@@ -91,22 +83,42 @@ class KnowledgeBase:
                     db_path, file_path
                 )
             )
-            self.conn = self.json_to_sqlite(db_path)
+            self.conn = self.json_to_sqlite(file_path, db_path)
 
         self.conn = self.get_conn_to_db(db_path)
 
-    def json_to_sqlite(self, db_path: str = None):
-        conn = sqlite3.connect(db_path)
+    def json_to_sqlite(self, file_path: str = None, db_path: str = None):
+        if file_path.endswith("jsonl"):
+            raw = (json.loads(line) for line in open(cached_path(file_path)))
+        else:
+            raw = json.load(open(cached_path(file_path)))
+
+        alias_to_cuis = defaultdict(set)
+        cui_to_entity = {}
+
+        for concept in raw:
+            unique_aliases = set(concept["aliases"])
+            unique_aliases.add(concept["canonical_name"])
+            for alias in unique_aliases:
+                # alias_to_cuis[alias] = (
+                #     set() if alias not in alias_to_cuis else alias_to_cuis[alias]
+                # )
+                alias_to_cuis[alias].add(concept["concept_id"])
+            cui_to_entity[concept["concept_id"]] = Entity(**concept)
+
+        alias_to_cuis: Dict[str, Set[str]] = {**alias_to_cuis}
+
+        conn = sqlite3.connect(db_path, check_same_thread=False)
         c = conn.cursor()
         c.execute("""CREATE TABLE alias_to_cuis (alias, cuis)""")
-        entries = [(k, str(v)) for k, v in self.alias_to_cuis.items()]
+        entries = [(k, str(v)) for k, v in alias_to_cuis.items()]
         c.executemany("INSERT INTO alias_to_cuis VALUES (?,?)", entries)
         conn.commit()
         return conn
 
     def get_conn_to_db(self, file_path: str = None):
         dburi = "file:{}?mode=rw".format(pathname2url(file_path))
-        conn = sqlite3.connect(dburi, uri=True)
+        conn = sqlite3.connect(dburi, uri=True, check_same_thread=False)
         return conn
 
     def get_cuis_from_alias(self, alias):
@@ -119,7 +131,7 @@ class KnowledgeBase:
             )
         except Exception as e:
             print(e, alias)
-        return [self.prefix + ":" + c.fetchone()[0].strip("{}")]
+        return [self.prefix + c.fetchone()[0].strip("{}")]
 
     def get_cuis_from_aliases(self, aliases):
         c = self.conn.cursor()
@@ -133,44 +145,35 @@ class KnowledgeBase:
         )
         mentions_to_concepts: Dict[str, List[str]] = defaultdict(list)
         for x in c.fetchall():
-            concept_ids = [
-                self.prefix + ":" + t.strip() for t in x[1].strip("{}").split(",")
-            ]
-            mentions_to_concepts[x[0]].extend(concept_ids)
+            concept_ids = [self.prefix + t.strip() for t in x[1].strip("{}").split(",")]
+            mentions_to_concepts[x[0]].extend(
+                concept_ids
+            )  # self.prefix + x[1].strip("{}"))
         return mentions_to_concepts
 
 
 class KnowledgeBaseFactory:
-
-    def __init__(self):
-        self.factory = {
-            "gbif_backbone": GbifKnowledgeBase,
-            "taxref": TaxRefKnowledgeBase,
-            "ncbi_taxonomy": NCBIKnowledgeBase,
-            # "ncbi_lite": NCBILiteKnowledgeBase(),
-        }
-
-    def get_kb(self, name_or_path=None):
-        if name_or_path in self.factory:
-            return self.factory[name_or_path]()
+    def get_kb(self, name=None):
+        if name == "gbif_backbone":
+            return GbifKnowledgeBase()
+        elif name == "taxref":
+            return TaxRefKnowledgeBase()
+        elif name == "ncbi_taxonomy":
+            return NCBIKnowledgeBase()
+        elif name == "ncbi_lite":
+            return NCBILiteKnowledgeBase()
         else:
-            path = Path(name_or_path)
-            if path.exists() and path.is_dir():
-                kb_file = list(path.glob("*.jsonl"))
-                if len(kb_file) == 1:
-                    return KnowledgeBase(file_path=kb_file[0], prefix=path.name.upper())
-        logger.info(f"Cannot initialize KnowledgeBase with name or path {name_or_path}")
-        return None
+            raise ValueError(name)
 
 
 class GbifKnowledgeBase(KnowledgeBase):
     def __init__(
         self,
         file_path=(
-            "https://cloud.univ-grenoble-alpes.fr/s/jpzMLYDLkG7ywSH/download",
-            "gbif_backbone/gbif_backbone_20230828.jsonl",
+            "http://taxonerd.texttechnologylab.org/gbif/gbif_backbone_20230828.jsonl",
+            "gbif_backbone_20230828.jsonl",
         ),
-        prefix="GBIF",
+        prefix="GBIF:",
     ):
         super().__init__(file_path, prefix)
 
@@ -179,10 +182,10 @@ class TaxRefKnowledgeBase(KnowledgeBase):
     def __init__(
         self,
         file_path=(
-            "https://cloud.univ-grenoble-alpes.fr/s/jPCMbGoDN8Pi6QP/download",
-            "taxref/taxref_v17.jsonl",
+            "http://taxonerd.texttechnologylab.org/taxref/taxref_v17.jsonl",
+            "taxref_v17.jsonl",
         ),
-        prefix="TAXREF",
+        prefix="TAXREF:",
     ):
         super().__init__(file_path, prefix)
 
@@ -191,21 +194,21 @@ class NCBIKnowledgeBase(KnowledgeBase):
     def __init__(
         self,
         file_path=(
-            "https://cloud.univ-grenoble-alpes.fr/s/Sg487BjiSYkJqtC/download",
-            "ncbi_taxonomy/ncbi_taxonomy_20240522.jsonl",
+            "http://taxonerd.texttechnologylab.org/ncbi/ncbi_taxonomy_20240522.jsonl",
+            "ncbi_taxonomy_20240522.jsonl",
         ),
-        prefix="NCBI",
+        prefix="NCBI:",
     ):
         super().__init__(file_path, prefix)
 
 
-# class NCBILiteKnowledgeBase(KnowledgeBase):
-#     def __init__(
-#         self,
-#         file_path=(
-#             "https://cloud.univ-grenoble-alpes.fr/index.php/s/cAmmpE6FxDxNBHj/download",
-#             "ncbi_lite_2021_03_25.jsonl",
-#         ),
-#         prefix="NCBI",
-#     ):
-#         super().__init__(file_path, prefix)
+class NCBILiteKnowledgeBase(KnowledgeBase):
+    def __init__(
+        self,
+        file_path=(
+                "http://taxonerd.texttechnologylab.org/ncbi/ncbi_taxonomy_20240522.jsonl",
+                "ncbi_taxonomy_20240522.jsonl",
+        ),
+        prefix="NCBI:",
+    ):
+        super().__init__(file_path, prefix)

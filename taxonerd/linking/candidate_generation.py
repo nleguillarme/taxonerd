@@ -41,57 +41,57 @@ class LinkerPaths(NamedTuple):
 
 GbifLinkerPaths = LinkerPaths(
     ann_index=(
-        "https://cloud.univ-grenoble-alpes.fr/s/EKFq4Ar4Sx5niqT/download",
+        "http://taxonerd.texttechnologylab.org/gbif/nmslib_index.bin",
         "gbif_backbone/nmslib_index.bin",
     ),  # nmslib_index.bin
     tfidf_vectorizer=(
-        "https://cloud.univ-grenoble-alpes.fr/s/GApZi44oNgComqz/download",
+        "http://taxonerd.texttechnologylab.org/gbif/tfidf_vectorizer.joblib",
         "gbif_backbone/tfidf_vectorizer.joblib",
     ),  # tfidf_vectorizer.joblib
     tfidf_vectors=(
-        "https://cloud.univ-grenoble-alpes.fr/s/NrgdgrCNWcs4kjD/download",
+        "http://taxonerd.texttechnologylab.org/gbif/tfidf_vectors_sparse.npz",
         "gbif_backbone/tfidf_vectors_sparse.npz",
     ),  # tfidf_vectors_sparse.npz
     concept_aliases_list=(
-        "https://cloud.univ-grenoble-alpes.fr/s/JgSnpYqHG8TtKp8/download",
+        "http://taxonerd.texttechnologylab.org/gbif/concept_aliases.json",
         "gbif_backbone/concept_aliases.json",
     ),  # concept_aliases.json
 )
 
 TaxRefLinkerPaths = LinkerPaths(
     ann_index=(
-        "https://cloud.univ-grenoble-alpes.fr/s/kG2YxgwaSxLmaPe/download",
+        "http://taxonerd.texttechnologylab.org/taxref/nmslib_index.bin",
         "taxref/nmslib_index.bin",
     ),  # nmslib_index.bin
     tfidf_vectorizer=(
-        "https://cloud.univ-grenoble-alpes.fr/s/LSjEMXjAEqceHts/download",
+        "http://taxonerd.texttechnologylab.org/taxref/tfidf_vectorizer.joblib",
         "taxref/tfidf_vectorizer.joblib",
     ),  # tfidf_vectorizer.joblib
     tfidf_vectors=(
-        "https://cloud.univ-grenoble-alpes.fr/s/B3yc7ik7YLwX82J/download",
+        "http://taxonerd.texttechnologylab.org/taxref/tfidf_vectors_sparse.npz",
         "taxref/tfidf_vectors_sparse.npz",
     ),  # tfidf_vectors_sparse.npz
     concept_aliases_list=(
-        "https://cloud.univ-grenoble-alpes.fr/s/t3RWoexSAi3imkw/download",
+        "http://taxonerd.texttechnologylab.org/taxref/concept_aliases.json",
         "taxref/concept_aliases.json",
     ),  # concept_aliases.json
 )
 
 NCBILinkerPaths = LinkerPaths(
     ann_index=(
-        "https://cloud.univ-grenoble-alpes.fr/s/Da5ZmfEsz4akfDA/download",
+        "http://taxonerd.texttechnologylab.org/ncbi/nmslib_index.bin",
         "ncbi_taxonomy/nmslib_index.bin",
     ),  # nmslib_index.bin
     tfidf_vectorizer=(
-        "https://cloud.univ-grenoble-alpes.fr/s/oYfWWLnpfoAPb46/download",
+        "http://taxonerd.texttechnologylab.org/ncbi/tfidf_vectorizer.joblib",
         "ncbi_taxonomy/tfidf_vectorizer.joblib",
     ),  # tfidf_vectorizer.joblib
     tfidf_vectors=(
-        "https://cloud.univ-grenoble-alpes.fr/s/4enMeBP8rDAPoYZ/download",
+        "http://taxonerd.texttechnologylab.org/ncbi/tfidf_vectors_sparse.npz",
         "ncbi_taxonomy/tfidf_vectors_sparse.npz",
     ),  # tfidf_vectors_sparse.npz
     concept_aliases_list=(
-        "https://cloud.univ-grenoble-alpes.fr/s/oKoTj89jMcKf5bJ/download",
+        "http://taxonerd.texttechnologylab.org/ncbi/concept_aliases.json",
         "ncbi_taxonomy/concept_aliases.json",
     ),  # concept_aliases.json
 )
